@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>星辰微信</title>
+<title>微信</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#1a1a2e;color:#fff;min-height:100vh}
@@ -76,6 +76,7 @@ input,select,textarea{outline:none;font-family:inherit}
 .admin-btn.red{background:linear-gradient(135deg,#e94560,#ff6b6b)}
 .admin-btn.green{background:linear-gradient(135deg,#11998e,#38ef7d)}
 .admin-btn.gray{background:rgba(255,255,255,0.1)}
+.admin-btn.purple{background:linear-gradient(135deg,#9d50bb,#6e48aa)}
 .admin-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
 .stat-box{background:rgba(255,255,255,0.1);border-radius:12px;padding:18px;text-align:center}
 .stat-num{font-size:26px;font-weight:700;color:#e94560}
@@ -127,7 +128,9 @@ input,select,textarea{outline:none;font-family:inherit}
 .group-header{padding:15px;display:flex;align-items:center;background:rgba(0,0,0,0.3)}
 .group-back{font-size:28px;margin-right:15px;cursor:pointer;padding:0 5px}
 .group-title{flex:1;font-size:18px;font-weight:600}
-.group-content{flex:1;overflow-y:auto;padding:15px}
+.group-content{flex:1;overflow-y:auto;padding:15px;-webkit-overflow-scrolling:touch}
+.group-notice{background:rgba(255,152,0,0.1);border-left:3px solid #ff9800;border-radius:8px;padding:12px 15px;margin-bottom:15px;font-size:13px;line-height:1.5}
+.group-notice-title{font-weight:600;margin-bottom:5px;color:#ffb74d}
 .group-member-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:15px;background:rgba(255,255,255,0.05);border-radius:12px;margin-bottom:15px}
 .group-member-cell{text-align:center;cursor:pointer;position:relative}
 .group-member-add{width:50px;height:50px;border-radius:12px;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 5px}
@@ -155,7 +158,7 @@ input,select,textarea{outline:none;font-family:inherit}
 .tag{font-size:10px;padding:1px 5px;border-radius:4px;margin-left:4px}
 .tag.owner{background:#ff9800}
 .tag.admin{background:#e94560}
-.tabs{position:relative}
+.tag.global-friend{background:#38ef7d;color:#000}
 .ai-fab{position:fixed;right:14px;bottom:74px;width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,#9d50bb,#6e48aa);box-shadow:0 4px 14px rgba(157,80,187,0.45);display:flex;align-items:center;justify-content:center;font-size:24px;cursor:pointer;z-index:1500;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;transition:transform 0.15s}
 .ai-fab:active{transform:scale(0.92)}
 .ai-popup{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:2500;display:none;align-items:center;justify-content:center;padding:20px}
@@ -174,15 +177,13 @@ input,select,textarea{outline:none;font-family:inherit}
 .ai-btn{flex:1;padding:11px;border-radius:10px;font-size:15px;font-weight:500}
 .ai-btn.primary{background:linear-gradient(135deg,#9d50bb,#6e48aa);color:#fff}
 .ai-btn.cancel{background:rgba(255,255,255,0.1);color:#fff}
-.ai-examples{margin-top:12px;text-align:left;background:rgba(255,255,255,0.04);border-radius:10px;padding:12px;font-size:12px;line-height:1.8;color:rgba(255,255,255,0.6)}
-.ai-examples b{color:#9d50bb}
 </style>
 </head>
 <body>
 
 <div id="loginPage" class="login">
   <div class="login-logo">💬</div>
-  <div class="login-title">星辰微信</div>
+  <div class="login-title">微信</div>
   <div>
     <input type="text" class="login-input" id="loginId" placeholder="微信号">
     <input type="password" class="login-input" id="loginPwd" placeholder="密码">
@@ -207,7 +208,7 @@ input,select,textarea{outline:none;font-family:inherit}
 
 <div id="mainPage" class="main">
   <div class="header">
-    <h1>💬 星辰微信</h1>
+    <h1>💬 微信</h1>
     <button class="header-btn" onclick="showAddMenu()">+ 添加</button>
   </div>
   <div id="noticeBar" class="notice-bar" style="display:none">
@@ -267,6 +268,14 @@ input,select,textarea{outline:none;font-family:inherit}
       <button class="admin-btn red" onclick="showDeleteGroup()">🗑 解散群聊</button>
     </div>
     <div class="admin-card">
+      <div class="admin-card-title">🌐 全局好友设置</div>
+      <p style="font-size:12px;opacity:0.6;margin-bottom:10px">设置后，所有用户自动添加该好友，无需认证</p>
+      <input type="text" class="popup-input" id="globalFriendInput" placeholder="输入微信号">
+      <button class="admin-btn purple" onclick="setGlobalFriend()">✅ 设置全局好友</button>
+      <button class="admin-btn gray" onclick="clearGlobalFriend()">🗑 取消全局好友</button>
+      <div id="globalFriendStatus" style="margin-top:10px;font-size:13px"></div>
+    </div>
+    <div class="admin-card">
       <div class="admin-card-title">📢 系统公告</div>
       <button class="admin-btn orange" onclick="showSendNotice()">📤 发布公告</button>
       <button class="admin-btn gray" onclick="clearNotice()">🗑 清除公告</button>
@@ -292,7 +301,7 @@ input,select,textarea{outline:none;font-family:inherit}
   <div class="chat-header">
     <span class="chat-back" onclick="closeChat()">‹</span>
     <span class="chat-title" id="chatTitle">聊天</span>
-    <span class="chat-more" id="chatMoreBtn" style="display:none" onclick="openGroupInfo()">⋯</span>
+    <span class="chat-more" id="chatMoreBtn" style="display:none" onclick="toggleGroupMenu()">⋯</span>
   </div>
   <div class="chat-messages" id="chatMessages"></div>
   <div class="chat-input-bar">
@@ -314,6 +323,19 @@ input,select,textarea{outline:none;font-family:inherit}
   <div class="action-item" onclick="closeAddMenu();showAddFriend()">👤 添加好友</div>
   <div class="action-item" onclick="closeAddMenu();showCreateGroup()">👥 创建群聊</div>
   <div class="action-item" onclick="closeAddMenu()">取消</div>
+</div>
+
+<!-- 群聊操作菜单 -->
+<div class="action-backdrop" id="groupMenuBackdrop" onclick="toggleGroupMenu()"></div>
+<div class="action-sheet" id="groupMenuSheet">
+  <div class="action-item" id="menuAddMember" onclick="showAddGroupMember()">👥 添加群成员</div>
+  <div class="action-item" id="menuRemoveMember" onclick="showRemoveGroupMember()">🚫 移除群成员</div>
+  <div class="action-item" id="menuSetAdmin" onclick="showSetAdmin()">⭐ 设置管理员</div>
+  <div class="action-item" id="menuNotice" onclick="showGroupNotice()">📢 发布/修改公告</div>
+  <div class="action-item" id="menuEditName" onclick="showEditGroupName()">✏️ 修改群名</div>
+  <div class="action-item" id="menuQuit" onclick="quitGroup()">🚪 退出群聊</div>
+  <div class="action-item danger" id="menuDismiss" onclick="dismissGroup()">💥 解散群聊</div>
+  <div class="action-item" onclick="toggleGroupMenu()">取消</div>
 </div>
 
 <div id="addFriendPopup" class="popup">
@@ -349,6 +371,47 @@ input,select,textarea{outline:none;font-family:inherit}
   </div>
 </div>
 
+<div id="removeMemberPopup" class="popup">
+  <div class="popup-box">
+    <div class="popup-head">移除群成员<span class="popup-close" onclick="closePopup('removeMemberPopup')">×</span></div>
+    <div class="popup-body">
+      <div id="removeMemberList" style="max-height:300px;overflow-y:auto;margin-bottom:12px"></div>
+      <button class="popup-btn red" onclick="doRemoveGroupMembers()">移除选中成员</button>
+    </div>
+  </div>
+</div>
+
+<div id="setAdminPopup" class="popup">
+  <div class="popup-box">
+    <div class="popup-head">设置/取消管理员<span class="popup-close" onclick="closePopup('setAdminPopup')">×</span></div>
+    <div class="popup-body">
+      <div id="setAdminList" style="max-height:300px;overflow-y:auto;margin-bottom:12px"></div>
+      <button class="popup-btn orange" onclick="doSetAdmin()">确认设置</button>
+    </div>
+  </div>
+</div>
+
+<div id="groupNoticePopup" class="popup">
+  <div class="popup-box">
+    <div class="popup-head">群公告<span class="popup-close" onclick="closePopup('groupNoticePopup')">×</span></div>
+    <div class="popup-body">
+      <textarea class="popup-textarea" id="groupNoticeContent" placeholder="输入群公告内容..."></textarea>
+      <button class="popup-btn orange" onclick="doSaveGroupNotice()">发布公告</button>
+      <button class="popup-btn gray" style="margin-top:8px" onclick="doClearGroupNotice()">清除公告</button>
+    </div>
+  </div>
+</div>
+
+<div id="editGroupNamePopup" class="popup">
+  <div class="popup-box">
+    <div class="popup-head">修改群名<span class="popup-close" onclick="closePopup('editGroupNamePopup')">×</span></div>
+    <div class="popup-body">
+      <input type="text" class="popup-input" id="newGroupName" placeholder="输入新群名">
+      <button class="popup-btn" onclick="doEditGroupName()">确认修改</button>
+    </div>
+  </div>
+</div>
+
 <div id="momentPopup" class="popup">
   <div class="popup-box">
     <div class="popup-head">发动态<span class="popup-close" onclick="closePopup('momentPopup')">×</span></div>
@@ -363,18 +426,17 @@ input,select,textarea{outline:none;font-family:inherit}
   <div class="popup-box">
     <div class="popup-head" style="background:linear-gradient(135deg,#667eea,#764ba2)">📝 批量生成账号<span class="popup-close" onclick="closePopup('batchGenPopup')">×</span></div>
     <div class="popup-body">
-      <input type="text" class="popup-input" id="genStartId" placeholder="起始微信号（如100000）">
-      <input type="number" class="popup-input" id="genCount" value="10" placeholder="数量（1-100）">
+      <input type="text" class="popup-input" id="genStartId" placeholder="起始微信号（如：100001）">
+      <input type="number" class="popup-input" id="genCount" placeholder="数量（默认10）" value="10">
       <select class="popup-select" id="genPwdType">
-        <option value="same">密码与ID相同</option>
-        <option value="123456">统一密码 123456</option>
+        <option value="same">密码与账号相同</option>
         <option value="custom">自定义密码</option>
       </select>
-      <input type="text" class="popup-input" id="genCustomPwd" placeholder="自定义密码" style="display:none">
-      <button class="popup-btn" onclick="doBatchGenerate()">开始生成</button>
-      <div id="genResult" style="margin-top:15px;background:rgba(255,255,255,0.1);padding:15px;border-radius:10px;display:none">
-        <div style="font-size:14px;margin-bottom:10px">✅ 生成成功！</div>
-        <pre id="genResultContent" style="font-size:12px;white-space:pre-wrap;word-break:break-all;max-height:200px;overflow-y:auto"></pre>
+      <input type="password" class="popup-input" id="genCustomPwd" placeholder="自定义密码" style="display:none">
+      <button class="popup-btn green" onclick="doBatchGenerate()">生成</button>
+      <div id="genResult" style="display:none;margin-top:15px">
+        <div style="font-size:13px;opacity:0.6;margin-bottom:8px">生成的账号：</div>
+        <div id="genResultContent" style="background:rgba(255,255,255,0.1);padding:12px;border-radius:8px;font-size:13px;white-space:pre-wrap;max-height:200px;overflow-y:auto"></div>
       </div>
     </div>
   </div>
@@ -384,14 +446,13 @@ input,select,textarea{outline:none;font-family:inherit}
   <div class="popup-box">
     <div class="popup-head" style="background:linear-gradient(135deg,#ff9800,#ffb74d)">❄️ 冻结账号<span class="popup-close" onclick="closePopup('freezePopup')">×</span></div>
     <div class="popup-body">
-      <input type="text" class="popup-input" id="freezeId" placeholder="输入微信号">
-      <div style="font-size:13px;opacity:0.6;margin-bottom:8px">冻结时长</div>
-      <div style="display:flex;gap:6px;align-items:center;margin-bottom:15px">
-        <input type="number" id="freezeDays" value="0" min="0" style="flex:1;padding:10px;border:none;border-radius:8px;background:rgba(255,255,255,0.1);color:#fff;text-align:center"><span>天</span>
-        <input type="number" id="freezeHours" value="0" min="0" max="23" style="flex:1;padding:10px;border:none;border-radius:8px;background:rgba(255,255,255,0.1);color:#fff;text-align:center"><span>时</span>
-        <input type="number" id="freezeMins" value="30" min="0" max="59" style="flex:1;padding:10px;border:none;border-radius:8px;background:rgba(255,255,255,0.1);color:#fff;text-align:center"><span>分</span>
+      <input type="text" class="popup-input" id="freezeId" placeholder="微信号">
+      <div style="display:flex;gap:10px;margin-bottom:12px">
+        <input type="number" class="popup-input" id="freezeDays" placeholder="天" style="flex:1">
+        <input type="number" class="popup-input" id="freezeHours" placeholder="时" style="flex:1">
+        <input type="number" class="popup-input" id="freezeMins" placeholder="分" style="flex:1">
       </div>
-      <button class="popup-btn orange" onclick="doFreezeAccount()">确认冻结</button>
+      <button class="popup-btn orange" onclick="doFreezeAccount()">冻结</button>
     </div>
   </div>
 </div>
@@ -400,8 +461,8 @@ input,select,textarea{outline:none;font-family:inherit}
   <div class="popup-box">
     <div class="popup-head" style="background:linear-gradient(135deg,#11998e,#38ef7d)">🔑 重置密码<span class="popup-close" onclick="closePopup('resetPwdPopup')">×</span></div>
     <div class="popup-body">
-      <input type="text" class="popup-input" id="resetPwdId" placeholder="输入微信号">
-      <input type="text" class="popup-input" id="resetPwdNew" placeholder="新密码（至少6位）">
+      <input type="text" class="popup-input" id="resetPwdId" placeholder="微信号">
+      <input type="password" class="popup-input" id="resetPwdNew" placeholder="新密码（至少6位）">
       <button class="popup-btn green" onclick="doResetPwd()">重置</button>
     </div>
   </div>
@@ -411,17 +472,18 @@ input,select,textarea{outline:none;font-family:inherit}
   <div class="popup-box">
     <div class="popup-head" style="background:linear-gradient(135deg,#e94560,#ff6b6b)">🗑 删除账号<span class="popup-close" onclick="closePopup('deleteUserPopup')">×</span></div>
     <div class="popup-body">
-      <input type="text" class="popup-input" id="deleteUserId" placeholder="输入微信号">
-      <div style="background:rgba(233,69,96,0.2);padding:12px;border-radius:8px;font-size:13px;margin-bottom:15px;color:#ff6b6b">⚠️ 删除后账号的所有数据（好友/聊天/朋友圈/群聊）都将清除！</div>
-      <button class="popup-btn" onclick="doDeleteUser()">确认删除</button>
+      <input type="text" class="popup-input" id="deleteUserId" placeholder="微信号">
+      <button class="popup-btn red" onclick="doDeleteUser()">删除</button>
     </div>
   </div>
 </div>
 
 <div id="allGroupsPopup" class="popup">
   <div class="popup-box">
-    <div class="popup-head">🏠 所有群聊<span class="popup-close" onclick="closePopup('allGroupsPopup')">×</span></div>
-    <div class="popup-body" id="allGroupsList"></div>
+    <div class="popup-head" style="background:linear-gradient(135deg,#11998e,#38ef7d)">📋 所有群聊<span class="popup-close" onclick="closePopup('allGroupsPopup')">×</span></div>
+    <div class="popup-body" style="max-height:400px;overflow-y:auto">
+      <div id="allGroupsList"></div>
+    </div>
   </div>
 </div>
 
@@ -429,17 +491,17 @@ input,select,textarea{outline:none;font-family:inherit}
   <div class="popup-box">
     <div class="popup-head" style="background:linear-gradient(135deg,#e94560,#ff6b6b)">🗑 解散群聊<span class="popup-close" onclick="closePopup('deleteGroupPopup')">×</span></div>
     <div class="popup-body">
-      <input type="text" class="popup-input" id="deleteGroupId" placeholder="输入群聊ID（如G1234...）">
-      <button class="popup-btn" onclick="doDeleteGroup()">确认解散</button>
+      <input type="text" class="popup-input" id="deleteGroupId" placeholder="群聊ID">
+      <button class="popup-btn red" onclick="doDeleteGroup()">解散</button>
     </div>
   </div>
 </div>
 
 <div id="sendNoticePopup" class="popup">
   <div class="popup-box">
-    <div class="popup-head" style="background:linear-gradient(135deg,#ff9800,#ffb74d)">📢 发布公告<span class="popup-close" onclick="closePopup('sendNoticePopup')">×</span></div>
+    <div class="popup-head" style="background:linear-gradient(135deg,#ff9800,#ffb74d)">📤 发布公告<span class="popup-close" onclick="closePopup('sendNoticePopup')">×</span></div>
     <div class="popup-body">
-      <textarea class="popup-textarea" id="noticeContent" placeholder="输入公告内容，所有用户首页都将看到..."></textarea>
+      <textarea class="popup-textarea" id="noticeContent" placeholder="输入公告内容..."></textarea>
       <button class="popup-btn orange" onclick="doSendNotice()">发布</button>
     </div>
   </div>
@@ -450,12 +512,12 @@ input,select,textarea{outline:none;font-family:inherit}
     <div class="popup-head">编辑资料<span class="popup-close" onclick="closePopup('editProfilePopup')">×</span></div>
     <div class="popup-body">
       <div style="text-align:center;margin-bottom:15px">
-        <div id="editAvatar" style="width:70px;height:70px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2);margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:32px;cursor:pointer" onclick="changeAvatar()">👤</div>
-        <div style="font-size:12px;opacity:0.5">点击更换头像</div>
+        <div id="editAvatar" style="width:70px;height:70px;border-radius:50%;background:linear-gradient(135deg,#e94560,#ff6b6b);display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto;cursor:pointer" onclick="changeAvatar()">👤</div>
+        <div style="font-size:12px;opacity:0.5;margin-top:5px">点击换头像</div>
       </div>
       <input type="text" class="popup-input" id="editName" placeholder="昵称">
       <input type="text" class="popup-input" id="editSign" placeholder="个性签名">
-      <button class="popup-btn" onclick="doSaveProfile()">保存</button>
+      <button class="popup-btn green" onclick="doSaveProfile()">保存</button>
     </div>
   </div>
 </div>
@@ -465,104 +527,178 @@ input,select,textarea{outline:none;font-family:inherit}
     <div class="popup-head">修改密码<span class="popup-close" onclick="closePopup('changePwdPopup')">×</span></div>
     <div class="popup-body">
       <input type="password" class="popup-input" id="oldPwd" placeholder="原密码">
-      <input type="password" class="popup-input" id="newPwd" placeholder="新密码">
+      <input type="password" class="popup-input" id="newPwd" placeholder="新密码（至少6位）">
       <input type="password" class="popup-input" id="newPwd2" placeholder="确认新密码">
-      <button class="popup-btn" onclick="doChangePwd()">确认修改</button>
-    </div>
-  </div>
-</div>
-
-<div id="frozenPopup" class="popup">
-  <div class="popup-box">
-    <div class="popup-head" style="background:#e94560">账号已冻结</div>
-    <div class="popup-body" style="text-align:center">
-      <div style="font-size:48px;margin-bottom:15px">❄️</div>
-      <div style="font-size:16px">距离解冻还剩：</div>
-      <div class="frozen-time" id="frozenTime"></div>
-      <button class="popup-btn" onclick="closePopup('frozenPopup')">知道了</button>
-    </div>
-  </div>
-</div>
-
-<div class="action-backdrop" id="actionBackdrop" onclick="closeActionMenu()"></div>
-<div class="action-sheet" id="actionSheet">
-  <div class="action-item danger" onclick="confirmDeleteMsg()">🗑️ 删除消息</div>
-  <div class="action-item" onclick="closeActionMenu()">取消</div>
-</div>
-
-<div class="action-backdrop" id="friendBackdrop" onclick="closeFriendMenu()"></div>
-<div class="action-sheet" id="friendSheet">
-  <div class="action-item" id="friendMenuName">好友</div>
-  <div class="action-item" onclick="openChatFromMenu()">💬 发消息</div>
-  <div class="action-item danger" id="friendDelBtn" onclick="confirmDeleteFriend()">🗑 删除好友</div>
-  <div class="action-item" onclick="closeFriendMenu()">取消</div>
-</div>
-
-<div class="ai-popup" id="aiPopup">
-  <div class="ai-popup-box">
-    <div class="ai-popup-title">🤖 AI 助手</div>
-    <div class="ai-popup-sub">输入指令，按回车或点「解析指令」</div>
-    <textarea class="ai-input" id="aiInput" placeholder="例如：给李四发今天加班"></textarea>
-    <div class="ai-status" id="aiStatus">&nbsp;</div>
-    <div class="ai-result-box" id="aiResult" style="display:none"></div>
-    <div class="ai-btns">
-      <button class="ai-btn cancel" onclick="closeAIPopup()">关闭</button>
-      <button class="ai-btn primary" id="aiConfirmBtn" data-mode="parse" onclick="aiSubmitOrExecute()">解析指令</button>
-    </div>
-    <div class="ai-examples">
-      💡 <b>指令示例：</b><br>
-      · 给 <b>李四</b> 发 <b>今天加班</b><br>
-      · 切换账号<br>
-      · 账号 <b>10086</b> 密码 <b>123456</b><br>
-      <span id="aiAdminExamples" style="display:none">· <b>[管理员]</b> 新建账号 账号 <b>10086</b> 密码 <b>123456</b></span>
+      <button class="popup-btn" onclick="doChangePwd()">修改</button>
     </div>
   </div>
 </div>
 
 <div id="adminPwdPopup" class="popup">
   <div class="popup-box">
-    <div class="popup-head" style="background:linear-gradient(135deg,#e94560,#ff6b6b)">🔐 验证管理员密码<span class="popup-close" onclick="closePopup('adminPwdPopup')">×</span></div>
+    <div class="popup-head" style="background:linear-gradient(135deg,#9d50bb,#6e48aa)">🔐 验证管理员身份<span class="popup-close" onclick="closePopup('adminPwdPopup')">×</span></div>
     <div class="popup-body">
-      <div style="background:rgba(157,80,187,0.15);padding:12px;border-radius:8px;font-size:13px;margin-bottom:15px;line-height:1.6" id="adminPwdHint"></div>
-      <input type="password" class="popup-input" id="adminPwdInput" placeholder="请输入管理员密码">
-      <button class="popup-btn" onclick="doVerifyAdminPwd()">确认</button>
+      <div id="adminPwdHint" style="font-size:13px;opacity:0.7;margin-bottom:12px;line-height:1.5"></div>
+      <input type="password" class="popup-input" id="adminPwdInput" placeholder="输入管理员密码">
+      <button class="popup-btn purple" onclick="doVerifyAdminPwd()">确认</button>
+    </div>
+  </div>
+</div>
+
+<div id="aiPopup" class="ai-popup">
+  <div class="ai-popup-box">
+    <div class="ai-popup-title">🤖 AI 助手</div>
+    <div class="ai-popup-sub">输入指令，我来帮你执行</div>
+    <textarea class="ai-input" id="aiInput" placeholder="例如：给李四发消息、切换账号、查看用户列表"></textarea>
+    <div class="ai-status" id="aiStatus">&nbsp;</div>
+    <div id="aiResult" style="display:none" class="ai-result-box"></div>
+    <div class="ai-btns">
+      <button class="ai-btn cancel" onclick="closeAIPopup()">取消</button>
+      <button class="ai-btn primary" id="aiConfirmBtn" onclick="aiSubmitOrExecute()">解析指令</button>
+    </div>
+    <div class="ai-examples" id="aiAdminExamples" style="display:none">
+      <b>管理员可用：</b><br>
+      · 新建账号 账号xxx 密码xxx<br>
+      · 查看所有用户<br>
+      · 冻结账号 xxx
+    </div>
+  </div>
+</div>
+
+<div id="frozenPopup" class="popup">
+  <div class="popup-box">
+    <div class="popup-head" style="background:linear-gradient(135deg,#ff9800,#ffb74d)">❄️ 账号已冻结<span class="popup-close" onclick="closePopup('frozenPopup')">×</span></div>
+    <div class="popup-body" style="text-align:center">
+      <div class="frozen-time" id="frozenTimeDisplay">--</div>
+      <p style="opacity:0.6;font-size:14px">账号已被冻结</p>
+      <p style="opacity:0.5;font-size:12px;margin-top:10px">解冻后即可正常登录</p>
     </div>
   </div>
 </div>
 
 <script>
+// ========== 全局变量 ==========
 var PRESET_ADMIN_ID = '54188';
-var PRESET_ADMIN = {password:'54188',nickname:'星辰管理员',avatar:'👑',sign:'系统管理员 · 有事找我',status:'online',isAdmin:true,createTime:0};
-var AVATARS = ['👤','👨','👩','🧑','👴','👵','👦','👧','🐱','🐶','🐰','🦊','🐼','🐨','🐯','🦁','🐮','🐷','🐸','🐵','🐔','🐧','🦋','🌸','🎮','🎯','🎨','🎭','🏆','⚽','🧸','🦄','🐲','🌺','🌈','🔥','💎','🎵','🎬','📷','🎁','💼'];
-var KEYS = {users:'wx_users_v10',friends:'wx_friends_',chats:'wx_chats_',moments:'wx_moments_v2',requests:'wx_requests_',groups:'wx_groups_v2',groupMsgs:'wx_group_msgs_',currentUser:'wx_current_user_v2',systemNotice:'wx_system_notice'};
-var currentUser = null, currentChatId = null, currentChatType = null, selectedMsgIndex = null, selectedFriendId = null, selectedGroupId = null;
-var pickedMembers = [], addingMembers = [];
+var PRESET_ADMIN_PWD = '54188';
+var currentUser = null;
+var currentChatId = null;
+var currentChatType = null;
+var currentGroupId = null;
+
+// localStorage keys
+var KEYS = {
+  users: 'wx_users',
+  friends: 'wx_friends_',
+  chats: 'wx_chats_',
+  groupMsgs: 'wx_groupmsgs_',
+  moments: 'wx_moments',
+  requests: 'wx_requests_',
+  groups: 'wx_groups',
+  systemNotice: 'wx_system_notice',
+  globalFriend: 'wx_globalFriend',
+  groupNotice: 'wx_groupNotice_',
+  currentUser: 'wx_currentUser'
+};
+
+var AVATARS = ['😀','😃','😄','😁','😆','😅','🤣','😂','🙂','😊','😇','🥰','😍','🤩','😘','😗','😚','😋','😛','😜','🤪','😝','🤑','🤗','🤭','🤫','🤔','🤐','🤨','😐','😑','😶','😏','😒','🙄','😬','🤥','😌','😔','😪','🤤','😴','😷','🤒','🤕','🤢','🤮','🥵','🥶','🥴','😵','🤯','🤠','🥳','😎','🤓','🧐','😕','😟','🙁','😮','😯','😲','😳','🥺','😦','😧','😨','😰','😥','😢','😭','😱','😖','😣','😞','😓','😩','😫','🥱','😤','😡','😠','🤬','😈','👿','💀','☠️','💩','🤡','👹','👺','👻','👽','👾','🤖','😺','😸','😹','😻','😼','😽','🙀','😿','😾'];
 
 function init() {
-  var users = JSON.parse(localStorage.getItem(KEYS.users) || '{}');
-  if (!users[PRESET_ADMIN_ID]) {
-    users[PRESET_ADMIN_ID] = PRESET_ADMIN;
-    localStorage.setItem(KEYS.users, JSON.stringify(users));
-  }
   var saved = localStorage.getItem(KEYS.currentUser);
   if (saved) {
-    currentUser = JSON.parse(saved);
+    var user = JSON.parse(saved);
+    var users = JSON.parse(localStorage.getItem(KEYS.users) || '{}');
+    var freshUser = users[user.id];
+    if (freshUser && freshUser.password === user.password) {
+      if (freshUser.frozenUntil && freshUser.frozenUntil > Date.now()) {
+        showFrozenTime(freshUser.frozenUntil);
+        return;
+      }
+      freshUser.status = 'online';
+      users[user.id] = freshUser;
+      localStorage.setItem(KEYS.users, JSON.stringify(users));
+      currentUser = freshUser;
+      applyGlobalFriend();
+      if (freshUser.isAdmin) syncAdminAllFriends();
+      showMainPage();
+      return;
+    }
+  }
+  localStorage.removeItem(KEYS.currentUser);
+  document.getElementById('loginPage').style.display = 'flex';
+}
+
+function doLogin() {
+  var id = document.getElementById('loginId').value.trim();
+  var pwd = document.getElementById('loginPwd').value;
+  if (!id || !pwd) { showToast('请输入账号和密码'); return; }
+  var users = JSON.parse(localStorage.getItem(KEYS.users) || '{}');
+  var user = users[id];
+  
+  // 检查是否是管理员账号
+  if (id === PRESET_ADMIN_ID && pwd === PRESET_ADMIN_PWD) {
+    if (!user) {
+      users[id] = {password:pwd,nickname:'管理员',avatar:'👑',sign:'系统管理员',status:'online',isAdmin:true,createTime:Date.now()};
+      localStorage.setItem(KEYS.users, JSON.stringify(users));
+    } else {
+      user.password = PRESET_ADMIN_PWD;
+      user.isAdmin = true;
+      user.status = 'online';
+      users[id] = user;
+      localStorage.setItem(KEYS.users, JSON.stringify(users));
+    }
+    currentUser = users[id];
+    localStorage.setItem(KEYS.currentUser, JSON.stringify(currentUser));
+    applyGlobalFriend();
+    syncAdminAllFriends();
     showMainPage();
-  } else {
-    document.getElementById('loginPage').style.display = 'flex';
+    showToast('管理员登录成功');
+    return;
+  }
+  
+  if (!user || user.password !== pwd) { showToast('账号或密码错误'); return; }
+  if (user.frozenUntil && user.frozenUntil > Date.now()) { showFrozenTime(user.frozenUntil); return; }
+  user.status = 'online';
+  users[id] = user;
+  localStorage.setItem(KEYS.users, JSON.stringify(users));
+  currentUser = user;
+  localStorage.setItem(KEYS.currentUser, JSON.stringify(currentUser));
+  applyGlobalFriend();
+  if (user.isAdmin) syncAdminAllFriends();
+  showMainPage();
+}
+
+function applyGlobalFriend() {
+  var gf = localStorage.getItem(KEYS.globalFriend);
+  if (!gf || !currentUser) return;
+  var friends = JSON.parse(localStorage.getItem(KEYS.friends + currentUser.id) || '[]');
+  if (friends.indexOf(gf) === -1) {
+    friends.push(gf);
+    localStorage.setItem(KEYS.friends + currentUser.id, JSON.stringify(friends));
   }
 }
 
-function closePopup(id) { document.getElementById(id).classList.remove('show'); }
-
-// ===== 注册 =====
-function showRegister() {
-  document.getElementById('regId').value = '';
-  document.getElementById('regPwd').value = '';
-  document.getElementById('regPwd2').value = '';
-  document.getElementById('regName').value = '';
-  document.getElementById('registerPopup').classList.add('show');
+function syncAdminAllFriends() {
+  var users = JSON.parse(localStorage.getItem(KEYS.users) || '{}');
+  for (var id in users) {
+    if (id === PRESET_ADMIN_ID) continue;
+    var friends = JSON.parse(localStorage.getItem(KEYS.friends + id) || '[]');
+    if (friends.indexOf(PRESET_ADMIN_ID) === -1) {
+      friends.push(PRESET_ADMIN_ID);
+      localStorage.setItem(KEYS.friends + id, JSON.stringify(friends));
+    }
+  }
 }
+
+function bindAdminFriend(userId) {
+  var friends = JSON.parse(localStorage.getItem(KEYS.friends + userId) || '[]');
+  if (friends.indexOf(PRESET_ADMIN_ID) === -1) {
+    friends.push(PRESET_ADMIN_ID);
+    localStorage.setItem(KEYS.friends + userId, JSON.stringify(friends));
+  }
+}
+
+function showRegister() { document.getElementById('registerPopup').classList.add('show'); }
+function closePopup(id) { document.getElementById(id).classList.remove('show'); }
 
 function doRegister() {
   var id = document.getElementById('regId').value.trim();
@@ -574,76 +710,23 @@ function doRegister() {
   if (pwd !== pwd2) { showToast('两次密码不一致'); return; }
   if (!name) { showToast('请输入昵称'); return; }
   var users = JSON.parse(localStorage.getItem(KEYS.users) || '{}');
-  if (users[id]) { showToast('该微信号已注册'); return; }
-  users[id] = {password:pwd,nickname:name,avatar:AVATARS[Math.floor(Math.random()*AVATARS.length)],sign:'这个人很懒',status:'online',createTime:Date.now()};
+  if (users[id]) { showToast('账号已存在'); return; }
+  if (id === PRESET_ADMIN_ID) { showToast('该账号不能注册'); return; }
+  users[id] = {password:pwd,nickname:name,avatar:AVATARS[Math.floor(Math.random()*AVATARS.length)],sign:'这个人很懒',status:'offline',createTime:Date.now()};
   localStorage.setItem(KEYS.users, JSON.stringify(users));
-  bindAdminFriend(id);
   closePopup('registerPopup');
-  showToast('注册成功！请登录');
+  showToast('注册成功！');
   document.getElementById('loginId').value = id;
   document.getElementById('loginPwd').value = pwd;
-}
-
-// 管理员自动好友：新用户出现时，互加管理员
-function bindAdminFriend(uid) {
-  if (uid === PRESET_ADMIN_ID) return;
-  var af = JSON.parse(localStorage.getItem(KEYS.friends + PRESET_ADMIN_ID) || '[]');
-  if (af.indexOf(uid) === -1) { af.push(uid); localStorage.setItem(KEYS.friends + PRESET_ADMIN_ID, JSON.stringify(af)); }
-  var uf = JSON.parse(localStorage.getItem(KEYS.friends + uid) || '[]');
-  if (uf.indexOf(PRESET_ADMIN_ID) === -1) { uf.push(PRESET_ADMIN_ID); localStorage.setItem(KEYS.friends + uid, JSON.stringify(uf)); }
-}
-
-// 管理员登录时一次性同步全员
-function syncAdminAllFriends() {
-  var users = JSON.parse(localStorage.getItem(KEYS.users) || '{}');
-  var af = JSON.parse(localStorage.getItem(KEYS.friends + PRESET_ADMIN_ID) || '[]');
-  for (var uid in users) {
-    if (uid === PRESET_ADMIN_ID) continue;
-    if (af.indexOf(uid) === -1) af.push(uid);
-    var uf = JSON.parse(localStorage.getItem(KEYS.friends + uid) || '[]');
-    if (uf.indexOf(PRESET_ADMIN_ID) === -1) { uf.push(PRESET_ADMIN_ID); localStorage.setItem(KEYS.friends + uid, JSON.stringify(uf)); }
-  }
-  localStorage.setItem(KEYS.friends + PRESET_ADMIN_ID, JSON.stringify(af));
-}
-
-// ===== 登录 =====
-function doLogin() {
-  var id = document.getElementById('loginId').value.trim();
-  var pwd = document.getElementById('loginPwd').value;
-  if (!id || !pwd) { showToast('请输入账号密码'); return; }
-  var users = JSON.parse(localStorage.getItem(KEYS.users) || '{}');
-  var user = users[id];
-  if (!user) { showToast('账号不存在'); return; }
-  if (user.password !== pwd) { showToast('密码错误'); return; }
-  if (user.frozenUntil && user.frozenUntil > Date.now()) { showFrozenTime(user.frozenUntil); return; }
-  user.status = 'online';
-  users[id] = user;
-  localStorage.setItem(KEYS.users, JSON.stringify(users));
-  if (user.isAdmin) syncAdminAllFriends();
-  currentUser = {id:id};
-  for (var k in user) currentUser[k] = user[k];
-  localStorage.setItem(KEYS.currentUser, JSON.stringify(currentUser));
-  showMainPage();
-}
-
-function showFrozenTime(ts) {
-  document.getElementById('frozenPopup').classList.add('show');
-  (function tick() {
-    var r = ts - Date.now();
-    if (r <= 0) { closePopup('frozenPopup'); return; }
-    var d = Math.floor(r/86400000), h = Math.floor((r%86400000)/3600000), m = Math.floor((r%3600000)/60000), s = Math.floor((r%60000)/1000);
-    document.getElementById('frozenTime').innerHTML = d+'天 '+h+'时 '+m+'分 '+s+'秒';
-    setTimeout(tick, 1000);
-  })();
 }
 
 function showMainPage() {
   document.getElementById('loginPage').style.display = 'none';
   document.getElementById('mainPage').style.display = 'flex';
-  document.getElementById('tabAdmin').style.display = currentUser.isAdmin ? 'block' : 'none';
-  document.getElementById('myAvatar').innerHTML = currentUser.avatar;
-  document.getElementById('myName').innerHTML = currentUser.nickname + (currentUser.isAdmin ? ' 👑' : '');
-  document.getElementById('mySign').innerHTML = currentUser.sign || '';
+  document.getElementById('tabAdmin').style.display = currentUser && currentUser.isAdmin ? 'block' : 'none';
+  document.getElementById('myAvatar').innerHTML = currentUser.avatar || '👤';
+  document.getElementById('myName').innerHTML = currentUser.nickname || '未知';
+  document.getElementById('mySign').innerHTML = currentUser.sign || '这个人很懒';
   var notice = localStorage.getItem(KEYS.systemNotice);
   if (notice) {
     document.getElementById('noticeBar').style.display = 'flex';
@@ -651,367 +734,566 @@ function showMainPage() {
   } else {
     document.getElementById('noticeBar').style.display = 'none';
   }
-  updateAll();
-}
-
-function updateAll() {
-  if (!currentUser) return;
+  if (currentUser.isAdmin) updateAdminPanel();
   renderMsgList();
-  renderRequestList();
-  renderGroupList();
-  renderContactList();
-  renderMomentList();
+  switchTab('chats');
 }
 
-// ===== 消息列表 =====
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
+  document.getElementById('tabChats').classList.toggle('active', tab==='chats');
+  document.getElementById('tabContacts').classList.toggle('active', tab==='contacts');
+  document.getElementById('tabMoments').classList.toggle('active', tab==='moments');
+  document.getElementById('tabMe').classList.toggle('active', tab==='me');
+  document.getElementById('tabAdmin').classList.toggle('active', tab==='admin');
+  document.getElementById('contentChats').style.display = tab==='chats' ? 'block' : 'none';
+  document.getElementById('contentContacts').style.display = tab==='contacts' ? 'block' : 'none';
+  document.getElementById('contentMoments').style.display = tab==='moments' ? 'block' : 'none';
+  document.getElementById('contentMe').style.display = tab==='me' ? 'block' : 'none';
+  document.getElementById('contentAdmin').style.display = tab==='admin' ? 'block' : 'none';
+  if (tab === 'contacts') { renderContactList(); renderRequestList(); }
+  if (tab === 'moments') renderMomentList();
+  if (tab === 'admin') updateAdminPanel();
+}
+
 function renderMsgList() {
-  var list = document.getElementById('msgList');
-  var users = JSON.parse(localStorage.getItem(KEYS.users) || '{}');
-  var groups = JSON.parse(localStorage.getItem(KEYS.groups) || '{}');
-  var myChats = JSON.parse(localStorage.getItem(KEYS.chats + currentUser.id) || '{}');
-  var myGroupMsgs = JSON.parse(localStorage.getItem(KEYS.groupMsgs + currentUser.id) || '{}');
-  var items = [];
-  for (var fid in myChats) {
-    var msgs = myChats[fid];
-    if (msgs && msgs.length > 0) {
-      var last = msgs[msgs.length-1], friend = users[fid] || {};
-      items.push({type:'friend',id:fid,name:friend.nickname||'未知',avatar:friend.avatar||'👤',preview:(last.from===currentUser.id?'我: ':'')+last.content,time:last.time,isGroup:false});
-    }
-  }
-  for (var gid in myGroupMsgs) {
-    var msgs2 = myGroupMsgs[gid];
-    if (msgs2 && msgs2.length > 0) {
-      var g = groups[gid]; if (!g) continue;
-      var last2 = msgs2[msgs2.length-1];
-      var sender = users[last2.from] || {};
-      items.push({type:'group',id:gid,name:g.name,avatar:'👥',preview:(last2.from===currentUser.id?'我: ':sender.nickname?sender.nickname+': ':'')+last2.content,time:last2.time,isGroup:true});
-    }
-  }
-  items.sort(function(a,b){return b.time-a.time;});
-  if (items.length === 0) { list.innerHTML = '<div class="empty">💬<br>暂无消息<br><span style="font-size:13px">加好友或建群开始聊天吧</span></div>'; return; }
+  var chats = JSON.parse(localStorage.getItem(KEYS.chats + currentUser.id) || '[]');
   var html = '';
-  for (var i = 0; i < items.length; i++) {
-    var it = items[i];
-    html += '<div class="msg-item" onclick="'+(it.isGroup?'openGroupChat':'openChat')+'(\''+it.id+'\')"><div class="msg-avatar'+(it.isGroup?' group':'')+'">'+it.avatar+'</div><div class="msg-info"><div class="msg-name">'+it.name+'</div><div class="msg-preview">'+it.preview+'</div></div><div class="msg-time">'+formatTime(it.time)+'</div></div>';
+  if (chats.length === 0) { html = '<div class="empty">暂无消息记录<br>去添加好友或加入群聊吧</div>'; }
+  else {
+    var users = JSON.parse(localStorage.getItem(KEYS.users) || '{}');
+    var groups = JSON.parse(localStorage.getItem(KEYS.groups) || '{}');
+    chats.forEach(function(item) {
+      var lastMsg = item.lastMsg || '';
+      var time = item.lastTime ? formatTime(item.lastTime) : '';
+      var name = '', avatar = '', isGroup = false;
+      if (item.type === 'friend') {
+        var u = users[item.id];
+        if (u) { name = u.nickname; avatar = u.avatar || '👤'; }
+      } else {
+        var g = groups[item.id];
+        if (g) { name = g.name; avatar = '👥'; isGroup = true; }
+      }
+      if (name) {
+        html += '<div class="msg-item" onclick="openChat(\''+item.id+'\',\''+item.type+'\')">'+
+          '<div class="msg-avatar'+(isGroup?' group':'')+'">'+avatar+'</div>'+
+          '<div class="msg-info"><div class="msg-name">'+name+'</div><div class="msg-preview">'+lastMsg+'</div></div>'+
+          '<div class="msg-time">'+time+'</div></div>';
+      }
+    });
   }
-  list.innerHTML = html;
-}
-
-// ===== 通讯录 =====
-function renderRequestList() {
-  var requests = JSON.parse(localStorage.getItem(KEYS.requests + currentUser.id) || '[]');
-  var list = document.getElementById('requestList');
-  if (requests.length === 0) { list.innerHTML = ''; return; }
-  var users = JSON.parse(localStorage.getItem(KEYS.users) || '{}');
-  var html = '<div style="font-size:13px;opacity:0.6;margin-bottom:10px">好友请求 ('+requests.length+')</div>';
-  for (var i = 0; i < requests.length; i++) {
-    var req = requests[i], u = users[req.from] || {};
-    html += '<div class="request-item"><div class="request-top"><div class="request-avatar">'+(u.avatar||'👤')+'</div><div class="request-name">'+(u.nickname||'未知')+'</div></div><div class="request-actions"><button class="req-btn accept" onclick="acceptReq('+i+')">同意</button><button class="req-btn reject" onclick="rejectReq('+i+')">拒绝</button></div></div>';
-  }
-  list.innerHTML = html;
-}
-
-function acceptReq(i) {
-  var requests = JSON.parse(localStorage.getItem(KEYS.requests + currentUser.id) || '[]');
-  var req = requests[i];
-  var my = JSON.parse(localStorage.getItem(KEYS.friends + currentUser.id) || '[]');
-  if (my.indexOf(req.from) === -1) { my.push(req.from); localStorage.setItem(KEYS.friends + currentUser.id, JSON.stringify(my)); }
-  var their = JSON.parse(localStorage.getItem(KEYS.friends + req.from) || '[]');
-  if (their.indexOf(currentUser.id) === -1) { their.push(currentUser.id); localStorage.setItem(KEYS.friends + req.from, JSON.stringify(their)); }
-  requests.splice(i, 1);
-  localStorage.setItem(KEYS.requests + currentUser.id, JSON.stringify(requests));
-  showToast('已添加');
-  renderRequestList(); renderContactList();
-}
-
-function rejectReq(i) {
-  var requests = JSON.parse(localStorage.getItem(KEYS.requests + currentUser.id) || '[]');
-  requests.splice(i, 1);
-  localStorage.setItem(KEYS.requests + currentUser.id, JSON.stringify(requests));
-  showToast('已拒绝'); renderRequestList();
-}
-
-function renderGroupList() {
-  var groups = JSON.parse(localStorage.getItem(KEYS.groups) || '{}');
-  var arr = [];
-  for (var gid in groups) {
-    if (groups[gid].members.indexOf(currentUser.id) !== -1) arr.push(groups[gid]);
-  }
-  if (arr.length === 0) { document.getElementById('groupList').innerHTML = ''; return; }
-  var html = '<div style="font-size:13px;opacity:0.6;margin:15px 0 10px">我的群聊 ('+arr.length+')</div>';
-  for (var i = 0; i < arr.length; i++) {
-    var g = arr[i];
-    html += '<div class="contact-item" onclick="openGroupChat(\''+g.id+'\')"><div class="contact-avatar group">'+g.avatar+'</div><div class="contact-name">'+g.name+'<span class="contact-tag">'+g.members.length+'人</span></div></div>';
-  }
-  document.getElementById('groupList').innerHTML = html;
+  document.getElementById('msgList').innerHTML = html;
 }
 
 function renderContactList() {
   var friends = JSON.parse(localStorage.getItem(KEYS.friends + currentUser.id) || '[]');
   var users = JSON.parse(localStorage.getItem(KEYS.users) || '{}');
-  var html = '<div style="font-size:13px;opacity:0.6;margin:15px 0 10px">我的好友 ('+friends.length+')</div>';
-  if (friends.length === 0) { html += '<div style="text-align:center;opacity:0.4;padding:15px;font-size:13px">暂无好友</div>'; }
-  else {
-    for (var i = 0; i < friends.length; i++) {
-      var fid = friends[i], u = users[fid];
-      if (u) html += '<div class="contact-item" onclick="showFriendMenu(\''+fid+'\')"><div class="contact-avatar">'+u.avatar+'</div><div class="contact-name">'+u.nickname+(u.isAdmin?'<span class="tag admin">管理员</span>':'')+'</div></div>';
-    }
+  var groups = JSON.parse(localStorage.getItem(KEYS.groups) || '{}') || {};
+  var html = '';
+  var friendsHtml = '';
+  var groupHtml = '';
+  
+  // 全局好友标签
+  var gf = localStorage.getItem(KEYS.globalFriend);
+  
+  friends.forEach(function(id) {
+    var u = users[id];
+    if (!u) return;
+    var tag = '';
+    if (id === PRESET_ADMIN_ID) tag = '<span class="contact-tag" style="background:#38ef7d;color:#000">全局好友</span>';
+    else if (u.isAdmin) tag = '<span class="contact-tag">管理员</span>';
+    friendsHtml += '<div class="contact-item" onclick="openChat(\''+id+'\',\'friend\')">'+
+      '<div class="contact-avatar">'+u.avatar+'</div>'+
+      '<div class="contact-name">'+u.nickname+tag+'</div></div>';
+  });
+  
+  for (var gid in groups) {
+    var g = groups[gid];
+    if (g.members.indexOf(currentUser.id) === -1) continue;
+    var isOwner = g.owner === currentUser.id;
+    var isAdmin = g.admins && g.admins.indexOf(currentUser.id) !== -1;
+    var tag = '';
+    if (isOwner) tag = '<span class="contact-tag" style="background:#ff9800">群主</span>';
+    else if (isAdmin) tag = '<span class="contact-tag" style="background:#e94560">管理员</span>';
+    groupHtml += '<div class="contact-item" onclick="openChat(\''+gid+'\',\'group\')">'+
+      '<div class="contact-avatar group">👥</div>'+
+      '<div class="contact-name">'+g.name+tag+'</div></div>';
   }
+  
+  if (groupHtml) html += '<div style="font-size:13px;opacity:0.5;margin:10px 0 8px">群聊</div>' + groupHtml;
+  if (friendsHtml) html += '<div style="font-size:13px;opacity:0.5;margin:10px 0 8px">好友</div>' + friendsHtml;
+  if (!html) html = '<div class="empty">暂无好友<br>去添加好友吧</div>';
+  document.getElementById('groupList').innerHTML = '';
   document.getElementById('contactList').innerHTML = html;
 }
 
-function showFriendMenu(fid) {
-  selectedFriendId = fid;
-  var users = JSON.parse(localStorage.getItem(KEYS.users) || '{}');
-  var u = users[fid] || {};
-  document.getElementById('friendMenuName').innerHTML = '👤 '+(u.nickname||'未知');
-  document.getElementById('friendDelBtn').style.display = (fid === PRESET_ADMIN_ID) ? 'none' : 'block';
-  document.getElementById('friendBackdrop').classList.add('show');
-  document.getElementById('friendSheet').classList.add('show');
-}
-
-function closeFriendMenu() {
-  document.getElementById('friendBackdrop').classList.remove('show');
-  document.getElementById('friendSheet').classList.remove('show');
-}
-
-function openChatFromMenu() {
-  var fid = selectedFriendId;
-  closeFriendMenu();
-  openChat(fid);
-}
-
-function confirmDeleteFriend() {
-  if (!selectedFriendId) return;
-  if (!confirm('确定删除该好友？')) return;
-  var my = JSON.parse(localStorage.getItem(KEYS.friends + currentUser.id) || '[]');
-  var idx = my.indexOf(selectedFriendId);
-  if (idx !== -1) { my.splice(idx, 1); localStorage.setItem(KEYS.friends + currentUser.id, JSON.stringify(my)); }
-  var their = JSON.parse(localStorage.getItem(KEYS.friends + selectedFriendId) || '[]');
-  var idx2 = their.indexOf(currentUser.id);
-  if (idx2 !== -1) { their.splice(idx2, 1); localStorage.setItem(KEYS.friends + selectedFriendId, JSON.stringify(their)); }
-  closeFriendMenu();
-  showToast('已删除');
-  renderContactList(); renderMsgList();
-}
-
-// ===== 朋友圈 =====
-function showMomentPopup() {
-  document.getElementById('momentContent').value = '';
-  document.getElementById('momentPopup').classList.add('show');
-}
-
-function doPostMoment() {
-  var content = document.getElementById('momentContent').value.trim();
-  if (!content) { showToast('请输入内容'); return; }
-  var moments = JSON.parse(localStorage.getItem(KEYS.moments) || '[]');
-  moments.push({id:'M'+Date.now(),userId:currentUser.id,content:content,likes:[],comments:[],time:Date.now()});
-  localStorage.setItem(KEYS.moments, JSON.stringify(moments));
-  closePopup('momentPopup');
-  showToast('发布成功');
-  renderMomentList();
-}
-
-function renderMomentList() {
-  var list = document.getElementById('momentList');
-  var moments = JSON.parse(localStorage.getItem(KEYS.moments) || '[]');
-  var users = JSON.parse(localStorage.getItem(KEYS.users) || '{}');
-  if (moments.length === 0) { list.innerHTML = '<div class="empty">🌤<br>朋友圈空空如也</div>'; return; }
-  moments.sort(function(a,b){return b.time-a.time;});
+function renderRequestList() {
+  var reqs = JSON.parse(localStorage.getItem(KEYS.requests + currentUser.id) || '[]');
   var html = '';
-  for (var i = 0; i < moments.length; i++) {
-    var m = moments[i], u = users[m.userId] || {};
-    var liked = m.likes && m.likes.indexOf(currentUser.id) !== -1;
-    var canDel = m.userId === currentUser.id || currentUser.isAdmin;
-    var likesHtml = '';
-    if (m.likes && m.likes.length > 0) {
-      var names = m.likes.map(function(uid){return (users[uid]||{}).nickname || '未知';}).join('、');
-      likesHtml = '<div class="moment-likes">❤️ '+names+'</div>';
-    }
-    var commentsHtml = '';
-    if (m.comments && m.comments.length > 0) {
-      for (var ci = 0; ci < m.comments.length; ci++) {
-        var c = m.comments[ci], cu = users[c.from] || {};
-        commentsHtml += '<div class="moment-comment"><span class="moment-comment-author">'+(cu.nickname||'未知')+'：</span>'+c.content+'</div>';
-      }
-    }
-    var delBtn = canDel ? '<div class="moment-action" onclick="deleteMoment(\''+m.id+'\')">🗑 删除</div>' : '';
-    html += '<div class="moment-item"><div class="moment-header"><div class="moment-avatar">'+(u.avatar||'👤')+'</div><div><div class="moment-name">'+(u.nickname||'未知')+(u.isAdmin?' 👑':'')+'</div><div class="moment-time">'+formatTime(m.time)+'</div></div></div><div class="moment-content">'+m.content+'</div><div class="moment-actions"><div class="moment-action '+(liked?'active':'')+'" onclick="toggleLike(\''+m.id+'\')">'+(liked?'❤️':'🤍')+' 赞</div><div class="moment-action" onclick="focusComment(\''+m.id+'\')">💬 评论</div>'+delBtn+'</div>'+((likesHtml||commentsHtml)?'<div class="moment-likes-comments">'+likesHtml+commentsHtml+'</div>':'')+'<div class="comment-bar" id="commentBar_'+m.id+'"><input class="comment-input" id="commentInput_'+m.id+'" placeholder="评论一下..."><button class="comment-send" onclick="postComment(\''+m.id+'\')">发送</button></div></div>';
-  }
-  list.innerHTML = html;
+  reqs.forEach(function(r) {
+    html += '<div class="request-item">'+
+      '<div class="request-top">'+
+        '<div class="request-avatar">'+r.avatar+'</div>'+
+        '<div class="request-name">'+r.nickname+' <span style="opacity:0.5;font-size:12px">'+r.fromId+'</span></div>'+
+      '</div>'+
+      '<div class="request-actions">'+
+        '<div class="req-btn accept" onclick="acceptRequest(\''+r.fromId+'\')">同意</div>'+
+        '<div class="req-btn reject" onclick="rejectRequest(\''+r.fromId+'\')">拒绝</div>'+
+      '</div></div>';
+  });
+  document.getElementById('requestList').innerHTML = html;
 }
 
-function findMomentIdx(mid) {
-  var moments = JSON.parse(localStorage.getItem(KEYS.moments) || '[]');
-  for (var i = 0; i < moments.length; i++) if (moments[i].id === mid) return i;
-  return -1;
-}
-
-function toggleLike(mid) {
-  var moments = JSON.parse(localStorage.getItem(KEYS.moments) || '[]');
-  var i = findMomentIdx(mid); if (i === -1) return;
-  if (!moments[i].likes) moments[i].likes = [];
-  var idx = moments[i].likes.indexOf(currentUser.id);
-  if (idx === -1) moments[i].likes.push(currentUser.id); else moments[i].likes.splice(idx, 1);
-  localStorage.setItem(KEYS.moments, JSON.stringify(moments));
-  renderMomentList();
-}
-
-function focusComment(mid) {
-  var bars = document.querySelectorAll('.comment-bar');
-  for (var i = 0; i < bars.length; i++) bars[i].classList.remove('show');
-  var bar = document.getElementById('commentBar_'+mid);
-  if (bar) { bar.classList.add('show'); var inp = document.getElementById('commentInput_'+mid); if (inp) inp.focus(); }
-}
-
-function postComment(mid) {
-  var inp = document.getElementById('commentInput_'+mid);
-  var content = inp.value.trim();
-  if (!content) return;
-  var moments = JSON.parse(localStorage.getItem(KEYS.moments) || '[]');
-  var i = findMomentIdx(mid); if (i === -1) return;
-  if (!moments[i].comments) moments[i].comments = [];
-  moments[i].comments.push({from:currentUser.id,content:content,time:Date.now()});
-  localStorage.setItem(KEYS.moments, JSON.stringify(moments));
-  inp.value = '';
-  renderMomentList();
-}
-
-function deleteMoment(mid) {
-  if (!confirm('确定删除这条动态？')) return;
-  var moments = JSON.parse(localStorage.getItem(KEYS.moments) || '[]');
-  moments = moments.filter(function(m){return m.id !== mid;});
-  localStorage.setItem(KEYS.moments, JSON.stringify(moments));
-  showToast('已删除');
-  renderMomentList();
-}
-
-// ===== 标签切换 =====
-function switchTab(tab) {
-  var tabs = document.querySelectorAll('.tab');
-  for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove('active');
-  var contents = document.querySelectorAll('.content');
-  for (var j = 0; j < contents.length; j++) contents[j].style.display = 'none';
-  var cap = tab.charAt(0).toUpperCase() + tab.slice(1);
-  var t = document.getElementById('tab'+cap); if (t) t.classList.add('active');
-  var c = document.getElementById('content'+cap); if (c) c.style.display = 'block';
-  if (tab === 'admin') updateAdminPanel();
-}
-
-// ===== 聊天 =====
-function openChat(fid) {
+function openChat(id, type) {
+  currentChatId = id;
+  currentChatType = type || 'friend';
   var users = JSON.parse(localStorage.getItem(KEYS.users) || '{}');
-  var friend = users[fid]; if (!friend) return;
-  currentChatId = fid; currentChatType = 'friend';
-  document.getElementById('mainPage').style.display = 'none';
-  document.getElementById('chatPage').style.display = 'flex';
-  document.getElementById('chatTitle').innerHTML = friend.nickname;
-  document.getElementById('chatMoreBtn').style.display = 'none';
-  renderChatMessages();
-}
-
-function openGroupChat(gid) {
   var groups = JSON.parse(localStorage.getItem(KEYS.groups) || '{}');
-  var g = groups[gid]; if (!g) return;
-  currentChatId = gid; currentChatType = 'group';
+  if (currentChatType === 'friend') {
+    var u = users[id];
+    document.getElementById('chatTitle').innerHTML = u ? u.nickname : '聊天';
+    document.getElementById('chatMoreBtn').style.display = 'none';
+  } else {
+    var g = groups[id];
+    document.getElementById('chatTitle').innerHTML = g ? g.name : '群聊';
+    document.getElementById('chatMoreBtn').style.display = 'inline';
+    currentGroupId = id;
+  }
   document.getElementById('mainPage').style.display = 'none';
+  document.getElementById('groupInfoPage').classList.remove('show');
   document.getElementById('chatPage').style.display = 'flex';
-  document.getElementById('chatTitle').innerHTML = g.name + ' ('+g.members.length+')';
-  document.getElementById('chatMoreBtn').style.display = 'inline';
   renderChatMessages();
-}
-
-function closeChat() {
-  currentChatId = null; currentChatType = null;
-  document.getElementById('chatPage').style.display = 'none';
-  document.getElementById('mainPage').style.display = 'flex';
-  updateAll();
+  document.getElementById('chatInput').focus();
 }
 
 function renderChatMessages() {
-  var container = document.getElementById('chatMessages');
-  var users = JSON.parse(localStorage.getItem(KEYS.users) || '{}');
-  var msgs = [];
-  if (currentChatType === 'friend') {
-    var chats = JSON.parse(localStorage.getItem(KEYS.chats + currentUser.id) || '{}');
-    msgs = chats[currentChatId] || [];
-  } else {
-    var gm = JSON.parse(localStorage.getItem(KEYS.groupMsgs + currentUser.id) || '{}');
-    msgs = gm[currentChatId] || [];
-  }
   var html = '';
-  for (var i = 0; i < msgs.length; i++) {
-    var msg = msgs[i], isMe = msg.from === currentUser.id, sender = users[msg.from] || {};
-    var nameLabel = (currentChatType === 'group' && !isMe) ? '<div class="chat-sender-name">'+(sender.nickname||'未知')+'</div>' : '';
-    html += '<div class="chat-msg '+(isMe?'me':'other')+'" ontouchstart="touchStart(event,'+i+')" ontouchend="touchEnd()" onmousedown="mouseDown(event,'+i+')" onmouseup="mouseUp()"><div class="chat-avatar">'+(sender.avatar||'👤')+'</div><div class="chat-bubble-wrap">'+nameLabel+'<div class="chat-bubble">'+msg.content+'</div></div></div>';
-  }
-  container.innerHTML = html;
-  container.scrollTop = container.scrollHeight;
-}
-
-var touchTimer = null;
-function touchStart(e, i) { touchTimer = setTimeout(function(){ selectedMsgIndex = i; document.getElementById('actionBackdrop').classList.add('show'); document.getElementById('actionSheet').classList.add('show'); }, 500); }
-function touchEnd() { clearTimeout(touchTimer); }
-function mouseDown(e, i) { touchTimer = setTimeout(function(){ selectedMsgIndex = i; document.getElementById('actionBackdrop').classList.add('show'); document.getElementById('actionSheet').classList.add('show'); }, 500); }
-function mouseUp() { clearTimeout(touchTimer); }
-function closeActionMenu() { document.getElementById('actionBackdrop').classList.remove('show'); document.getElementById('actionSheet').classList.remove('show'); }
-
-function confirmDeleteMsg() {
-  if (selectedMsgIndex === null) { closeActionMenu(); return; }
   if (currentChatType === 'friend') {
-    var chats = JSON.parse(localStorage.getItem(KEYS.chats + currentUser.id) || '{}');
-    var msgs = chats[currentChatId] || [];
-    if (msgs[selectedMsgIndex]) {
-      msgs.splice(selectedMsgIndex, 1);
-      chats[currentChatId] = msgs;
-      localStorage.setItem(KEYS.chats + currentUser.id, JSON.stringify(chats));
-    }
+    var msgs = JSON.parse(localStorage.getItem(KEYS.chats + currentUser.id + '_' + currentChatId) || '[]');
+    var users = JSON.parse(localStorage.getItem(KEYS.users) || '{}');
+    msgs.forEach(function(m) {
+      var isMe = m.from === currentUser.id;
+      var u = users[m.from];
+      var avatar = isMe ? (currentUser.avatar || '👤') : (u ? u.avatar : '👤');
+      var cls = isMe ? 'me' : '';
+      html += '<div class="chat-msg '+cls+'">'+
+        '<div class="chat-avatar">'+avatar+'</div>'+
+        '<div class="chat-bubble-wrap"><div class="chat-bubble">'+m.msg+'</div></div></div>';
+    });
   } else {
-    var gm = JSON.parse(localStorage.getItem(KEYS.groupMsgs + currentUser.id) || '{}');
-    var msgs2 = gm[currentChatId] || [];
-    if (msgs2[selectedMsgIndex]) {
-      msgs2.splice(selectedMsgIndex, 1);
-      gm[currentChatId] = msgs2;
-      localStorage.setItem(KEYS.groupMsgs + currentUser.id, JSON.stringify(gm));
-    }
+    var msgs = JSON.parse(localStorage.getItem(KEYS.groupMsgs + currentUser.id) || '{}');
+    var allMsgs = msgs[currentChatId] || [];
+    var users = JSON.parse(localStorage.getItem(KEYS.users) || '{}');
+    allMsgs.forEach(function(m) {
+      var isMe = m.from === currentUser.id;
+      var u = users[m.from];
+      var avatar = isMe ? (currentUser.avatar || '👤') : (u ? u.avatar : '👤');
+      var cls = isMe ? 'me' : '';
+      var senderName = (!isMe && u) ? '<div class="chat-sender-name">'+u.nickname+'</div>' : '';
+      html += '<div class="chat-msg '+cls+'">'+
+        '<div class="chat-avatar">'+avatar+'</div>'+
+        '<div class="chat-bubble-wrap">'+senderName+'<div class="chat-bubble">'+m.msg+'</div></div></div>';
+    });
   }
-  showToast('已删除');
-  closeActionMenu();
-  renderChatMessages();
+  document.getElementById('chatMessages').innerHTML = html;
+  document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
 }
 
 function sendMessage() {
-  var input = document.getElementById('chatInput');
-  var content = input.value.trim();
-  if (!content) return;
+  var txt = document.getElementById('chatInput').value.trim();
+  if (!txt) return;
+  document.getElementById('chatInput').value = '';
   var now = Date.now();
   if (currentChatType === 'friend') {
-    var chats = JSON.parse(localStorage.getItem(KEYS.chats + currentUser.id) || '{}');
-    if (!chats[currentChatId]) chats[currentChatId] = [];
-    chats[currentChatId].push({from:currentUser.id,to:currentChatId,content:content,time:now});
-    localStorage.setItem(KEYS.chats + currentUser.id, JSON.stringify(chats));
-    var fc = JSON.parse(localStorage.getItem(KEYS.chats + currentChatId) || '{}');
-    if (!fc[currentUser.id]) fc[currentUser.id] = [];
-    fc[currentUser.id].push({from:currentUser.id,to:currentChatId,content:content,time:now});
-    localStorage.setItem(KEYS.chats + currentChatId, JSON.stringify(fc));
+    var msgs = JSON.parse(localStorage.getItem(KEYS.chats + currentUser.id + '_' + currentChatId) || '[]');
+    msgs.push({from:currentUser.id, msg:txt, time:now});
+    localStorage.setItem(KEYS.chats + currentUser.id + '_' + currentChatId, JSON.stringify(msgs));
+    // 对方也存一份
+    var msgs2 = JSON.parse(localStorage.getItem(KEYS.chats + currentChatId + '_' + currentUser.id) || '[]');
+    msgs2.push({from:currentUser.id, msg:txt, time:now});
+    localStorage.setItem(KEYS.chats + currentChatId + '_' + currentUser.id, JSON.stringify(msgs2));
+    // 更新聊天列表
+    updateChatList(currentChatId, 'friend', txt, now);
   } else {
+    var allMsgs = JSON.parse(localStorage.getItem(KEYS.groupMsgs + currentUser.id) || '{}');
+    if (!allMsgs[currentChatId]) allMsgs[currentChatId] = [];
+    allMsgs[currentChatId].push({from:currentUser.id, msg:txt, time:now});
+    localStorage.setItem(KEYS.groupMsgs + currentUser.id, JSON.stringify(allMsgs));
+    // 同步给其他群成员
     var groups = JSON.parse(localStorage.getItem(KEYS.groups) || '{}');
-    var g = groups[currentChatId]; if (!g) return;
-    var msg = {from:currentUser.id,content:content,time:now};
-    for (var i = 0; i < g.members.length; i++) {
-      var gm = JSON.parse(localStorage.getItem(KEYS.groupMsgs + g.members[i]) || '{}');
-      if (!gm[currentChatId]) gm[currentChatId] = [];
-      gm[currentChatId].push(msg);
-      localStorage.setItem(KEYS.groupMsgs + g.members[i], JSON.stringify(gm));
+    var g = groups[currentChatId];
+    if (g) {
+      g.members.forEach(function(mid) {
+        if (mid === currentUser.id) return;
+        var hisMsgs = JSON.parse(localStorage.getItem(KEYS.groupMsgs + mid) || '{}');
+        if (!hisMsgs[currentChatId]) hisMsgs[currentChatId] = [];
+        hisMsgs[currentChatId].push({from:currentUser.id, msg:txt, time:now});
+        localStorage.setItem(KEYS.groupMsgs + mid, JSON.stringify(hisMsgs));
+        updateChatList(currentChatId, 'group', currentUser.nickname+'：'+txt, now);
+      });
     }
+    updateChatList(currentChatId, 'group', txt, now);
   }
-  input.value = '';
   renderChatMessages();
 }
 
-// ===== 添加菜单 =====
-function showAddMenu() { document.getElementById('addBackdrop').classList.add('show'); document.getElementById('addMenu').classList.add('show'); }
-function closeAddMenu() { document.getElementById('addBackdrop').classList.remove('show'); document.getElementById('addMenu').classList.remove('show'); }
+function updateChatList(id, type, lastMsg, time) {
+  var chats = JSON.parse(localStorage.getItem(KEYS.chats + currentUser.id) || '[]');
+  var idx = -1;
+  for (var i = 0; i < chats.length; i++) {
+    if (chats[i].id === id && chats[i].type === type) { idx = i; break; }
+  }
+  if (idx !== -1) chats.splice(idx, 1);
+  chats.unshift({id:id, type:type, lastMsg:lastMsg, lastTime:time});
+  localStorage.setItem(KEYS.chats + currentUser.id, JSON.stringify(chats));
+}
+
+function closeChat() {
+  document.getElementById('chatPage').style.display = 'none';
+  currentChatId = null;
+  currentChatType = null;
+  currentGroupId = null;
+  document.getElementById('mainPage').style.display = 'flex';
+  renderMsgList();
+}
+
+function openGroupInfo() {
+  if (!currentGroupId) return;
+  var groups = JSON.parse(localStorage.getItem(KEYS.groups) || '{}');
+  var g = groups[currentGroupId];
+  if (!g) return;
+  var users = JSON.parse(localStorage.getItem(KEYS.users) || '{}');
+  var html = '';
+  
+  // 群公告
+  var notice = localStorage.getItem(KEYS.groupNotice + currentGroupId) || '';
+  if (notice) {
+    html += '<div class="group-notice"><div class="group-notice-title">📢 群公告</div>'+notice+'</div>';
+  }
+  
+  // 群信息
+  html += '<div style="margin-bottom:15px"><strong>群名：</strong>'+g.name+'</div>';
+  html += '<div style="margin-bottom:15px"><strong>群主：</strong>'+(users[g.owner]?users[g.owner].nickname:'未知')+'</div>';
+  html += '<div style="margin-bottom:15px"><strong>群公告：</strong>'+(notice||'暂无')+'</div>';
+  
+  // 成员列表
+  html += '<div style="margin-bottom:10px"><strong>群成员（'+g.members.length+'人）</strong></div>';
+  html += '<div class="group-member-grid">';
+  g.members.forEach(function(mid) {
+    var u = users[mid];
+    if (!u) return;
+    var isOwner = mid === g.owner;
+    var isAdmin = g.admins && g.admins.indexOf(mid) !== -1;
+    var tag = '';
+    if (isOwner) tag = '<span class="tag owner">群主</span>';
+    else if (isAdmin) tag = '<span class="tag admin">管理员</span>';
+    html += '<div class="group-member-cell">'+
+      '<div class="group-member-avatar">'+u.avatar+'</div>'+
+      '<div class="group-member-name">'+u.nickname+tag+'</div></div>';
+  });
+  html += '</div>';
+  
+  document.getElementById('groupInfoContent').innerHTML = html;
+  document.getElementById('chatPage').style.display = 'none';
+  document.getElementById('groupInfoPage').classList.add('show');
+}
+
+function closeGroupInfo() {
+  document.getElementById('groupInfoPage').classList.remove('show');
+  document.getElementById('chatPage').style.display = 'flex';
+}
+
+// ========== 群聊操作菜单 ==========
+function toggleGroupMenu() {
+  var sheet = document.getElementById('groupMenuSheet');
+  var backdrop = document.getElementById('groupMenuBackdrop');
+  var isOpen = sheet.classList.contains('show');
+  
+  if (isOpen) {
+    sheet.classList.remove('show');
+    backdrop.classList.remove('show');
+  } else {
+    updateGroupMenuItems();
+    sheet.classList.add('show');
+    backdrop.classList.add('show');
+  }
+}
+
+function updateGroupMenuItems() {
+  if (!currentGroupId) return;
+  var groups = JSON.parse(localStorage.getItem(KEYS.groups) || '{}');
+  var g = groups[currentGroupId];
+  if (!g) return;
+  
+  var isOwner = g.owner === currentUser.id;
+  var isAdmin = g.admins && g.admins.indexOf(currentUser.id) !== -1;
+  var canManage = isOwner || isAdmin;
+  
+  // 管理员和群主可见
+  document.getElementById('menuAddMember').style.display = canManage ? 'block' : 'none';
+  document.getElementById('menuRemoveMember').style.display = canManage ? 'block' : 'none';
+  document.getElementById('menuNotice').style.display = canManage ? 'block' : 'none';
+  document.getElementById('menuEditName').style.display = canManage ? 'block' : 'none';
+  
+  // 仅群主可见
+  document.getElementById('menuSetAdmin').style.display = isOwner ? 'block' : 'none';
+  document.getElementById('menuDismiss').style.display = isOwner ? 'block' : 'none';
+  
+  // 非群主可见
+  document.getElementById('menuQuit').style.display = !isOwner ? 'block' : 'none';
+}
+
+function showAddGroupMember() {
+  toggleGroupMenu();
+  var groups = JSON.parse(localStorage.getItem(KEYS.groups) || '{}');
+  var g = groups[currentGroupId];
+  if (!g) return;
+  var users = JSON.parse(localStorage.getItem(KEYS.users) || '{}');
+  var friends = JSON.parse(localStorage.getItem(KEYS.friends + currentUser.id) || '[]');
+  var html = '';
+  friends.forEach(function(fid) {
+    if (g.members.indexOf(fid) !== -1) return;
+    var u = users[fid];
+    if (!u) return;
+    html += '<div class="member-pick-item"><input type="checkbox" value="'+fid+'"><span class="member-pick-avatar">'+u.avatar+'</span>'+u.nickname+'</div>';
+  });
+  if (!html) html = '<div style="text-align:center;opacity:0.5;padding:20px">暂无可添加的好友</div>';
+  document.getElementById('addMemberPickList').innerHTML = html;
+  document.getElementById('addMemberPopup').classList.add('show');
+}
+
+function doAddGroupMembers() {
+  var cbs = document.querySelectorAll('#addMemberPickList input:checked');
+  if (cbs.length === 0) { showToast('请选择要添加的成员'); return; }
+  var groups = JSON.parse(localStorage.getItem(KEYS.groups) || '{}');
+  var g = groups[currentGroupId];
+  if (!g) return;
+  var users = JSON.parse(localStorage.getItem(KEYS.users) || '{}');
+  var added = [];
+  cbs.forEach(function(cb) {
+    var fid = cb.value;
+    if (g.members.indexOf(fid) === -1) {
+      g.members.push(fid);
+      // 初始化该用户的群消息
+      var hisMsgs = JSON.parse(localStorage.getItem(KEYS.groupMsgs + fid) || '{}');
+      hisMsgs[currentGroupId] = [];
+      localStorage.setItem(KEYS.groupMsgs + fid, JSON.stringify(hisMsgs));
+      added.push(users[fid] ? users[fid].nickname : fid);
+    }
+  });
+  localStorage.setItem(KEYS.groups, JSON.stringify(groups));
+  closePopup('addMemberPopup');
+  showToast('已添加 '+added.length+' 位成员');
+  renderContactList();
+}
+
+function showRemoveGroupMember() {
+  toggleGroupMenu();
+  var groups = JSON.parse(localStorage.getItem(KEYS.groups) || '{}');
+  var g = groups[currentGroupId];
+  if (!g) return;
+  var users = JSON.parse(localStorage.getItem(KEYS.users) || '{}');
+  var html = '';
+  g.members.forEach(function(mid) {
+    if (mid === g.owner) return; // 不能移除群主
+    var u = users[mid];
+    if (!u) return;
+    html += '<div class="member-pick-item"><input type="checkbox" value="'+mid+'"><span class="member-pick-avatar">'+u.avatar+'</span>'+u.nickname+'</div>';
+  });
+  if (!html) html = '<div style="text-align:center;opacity:0.5;padding:20px">暂无可移除的成员</div>';
+  document.getElementById('removeMemberList').innerHTML = html;
+  document.getElementById('removeMemberPopup').classList.add('show');
+}
+
+function doRemoveGroupMembers() {
+  var cbs = document.querySelectorAll('#removeMemberList input:checked');
+  if (cbs.length === 0) { showToast('请选择要移除的成员'); return; }
+  var groups = JSON.parse(localStorage.getItem(KEYS.groups) || '{}');
+  var g = groups[currentGroupId];
+  if (!g) return;
+  var users = JSON.parse(localStorage.getItem(KEYS.users) || '{}');
+  var removed = [];
+  cbs.forEach(function(cb) {
+    var mid = cb.value;
+    var idx = g.members.indexOf(mid);
+    if (idx !== -1) {
+      g.members.splice(idx, 1);
+      // 如果被移除的是管理员，也从admins中移除
+      if (g.admins) {
+        var adminIdx = g.admins.indexOf(mid);
+        if (adminIdx !== -1) g.admins.splice(adminIdx, 1);
+      }
+      removed.push(users[mid] ? users[mid].nickname : mid);
+    }
+  });
+  localStorage.setItem(KEYS.groups, JSON.stringify(groups));
+  closePopup('removeMemberPopup');
+  showToast('已移除 '+removed.length+' 位成员');
+  renderContactList();
+}
+
+function showSetAdmin() {
+  toggleGroupMenu();
+  var groups = JSON.parse(localStorage.getItem(KEYS.groups) || '{}');
+  var g = groups[currentGroupId];
+  if (!g) return;
+  var users = JSON.parse(localStorage.getItem(KEYS.users) || '{}');
+  if (!g.admins) g.admins = [];
+  var html = '';
+  g.members.forEach(function(mid) {
+    if (mid === g.owner) return; // 群主不需要设置
+    var u = users[mid];
+    if (!u) return;
+    var isAdmin = g.admins.indexOf(mid) !== -1;
+    html += '<div class="member-pick-item"><input type="checkbox" value="'+mid+'"'+(isAdmin?' checked':'')+'><span class="member-pick-avatar">'+u.avatar+'</span>'+u.nickname+(isAdmin?' <span style="color:#e94560">(管理员)</span>':'')+'</div>';
+  });
+  if (!html) html = '<div style="text-align:center;opacity:0.5;padding:20px">暂无其他成员</div>';
+  document.getElementById('setAdminList').innerHTML = html;
+  document.getElementById('setAdminPopup').classList.add('show');
+}
+
+function doSetAdmin() {
+  var cbs = document.querySelectorAll('#setAdminList input:checked');
+  var groups = JSON.parse(localStorage.getItem(KEYS.groups) || '{}');
+  var g = groups[currentGroupId];
+  if (!g) return;
+  var newAdmins = [];
+  cbs.forEach(function(cb) { newAdmins.push(cb.value); });
+  g.admins = newAdmins;
+  localStorage.setItem(KEYS.groups, JSON.stringify(groups));
+  closePopup('setAdminPopup');
+  showToast('管理员设置已更新');
+  renderContactList();
+}
+
+function showGroupNotice() {
+  toggleGroupMenu();
+  var notice = localStorage.getItem(KEYS.groupNotice + currentGroupId) || '';
+  document.getElementById('groupNoticeContent').value = notice;
+  document.getElementById('groupNoticePopup').classList.add('show');
+}
+
+function doSaveGroupNotice() {
+  var content = document.getElementById('groupNoticeContent').value.trim();
+  if (!content) { showToast('公告内容不能为空'); return; }
+  localStorage.setItem(KEYS.groupNotice + currentGroupId, content);
+  closePopup('groupNoticePopup');
+  showToast('群公告已发布');
+}
+
+function doClearGroupNotice() {
+  localStorage.removeItem(KEYS.groupNotice + currentGroupId);
+  document.getElementById('groupNoticeContent').value = '';
+  closePopup('groupNoticePopup');
+  showToast('群公告已清除');
+}
+
+function showEditGroupName() {
+  toggleGroupMenu();
+  var groups = JSON.parse(localStorage.getItem(KEYS.groups) || '{}');
+  var g = groups[currentGroupId];
+  if (!g) return;
+  document.getElementById('newGroupName').value = g.name;
+  document.getElementById('editGroupNamePopup').classList.add('show');
+}
+
+function doEditGroupName() {
+  var newName = document.getElementById('newGroupName').value.trim();
+  if (!newName) { showToast('群名不能为空'); return; }
+  var groups = JSON.parse(localStorage.getItem(KEYS.groups) || '{}');
+  var g = groups[currentGroupId];
+  if (!g) return;
+  g.name = newName;
+  localStorage.setItem(KEYS.groups, JSON.stringify(groups));
+  document.getElementById('chatTitle').innerHTML = newName;
+  closePopup('editGroupNamePopup');
+  showToast('群名已修改');
+  renderContactList();
+}
+
+function quitGroup() {
+  if (!confirm('确定退出该群聊？')) return;
+  var groups = JSON.parse(localStorage.getItem(KEYS.groups) || '{}');
+  var g = groups[currentGroupId];
+  if (!g) return;
+  var idx = g.members.indexOf(currentUser.id);
+  if (idx !== -1) g.members.splice(idx, 1);
+  // 如果群主退出且还有成员，转让群主
+  if (g.owner === currentUser.id && g.members.length > 0) {
+    g.owner = g.members[0];
+  }
+  // 如果成员为空，解散群
+  if (g.members.length === 0) {
+    delete groups[currentGroupId];
+    localStorage.setItem(KEYS.groups, JSON.stringify(groups));
+  } else {
+    localStorage.setItem(KEYS.groups, JSON.stringify(groups));
+  }
+  toggleGroupMenu();
+  closeChat();
+  showToast('已退出群聊');
+  renderContactList();
+}
+
+function dismissGroup() {
+  if (!confirm('⚠️ 确定解散该群聊？此操作不可恢复！')) return;
+  var groups = JSON.parse(localStorage.getItem(KEYS.groups) || '{}');
+  var g = groups[currentGroupId];
+  if (!g) return;
+  // 清除所有成员的群消息
+  g.members.forEach(function(mid) {
+    var hisMsgs = JSON.parse(localStorage.getItem(KEYS.groupMsgs + mid) || '{}');
+    delete hisMsgs[currentGroupId];
+    localStorage.setItem(KEYS.groupMsgs + mid, JSON.stringify(hisMsgs));
+  });
+  delete groups[currentGroupId];
+  localStorage.removeItem(KEYS.groupNotice + currentGroupId);
+  localStorage.setItem(KEYS.groups, JSON.stringify(groups));
+  toggleGroupMenu();
+  closeChat();
+  showToast('群聊已解散');
+  renderContactList();
+}
+
+// ========== 全局好友 ==========
+function setGlobalFriend() {
+  var wxid = document.getElementById('globalFriendInput').value.trim();
+  if (!wxid) { showToast('请输入微信号'); return; }
+  var users = JSON.parse(localStorage.getItem(KEYS.users) || '{}');
+  if (!users[wxid]) { showToast('该账号不存在'); return; }
+  localStorage.setItem(KEYS.globalFriend, wxid);
+  document.getElementById('globalFriendStatus').innerHTML = '✅ 已设置 <b>'+wxid+'</b> ('+(users[wxid].nickname||wxid)+') 为全局好友';
+  showToast('全局好友设置成功');
+  
+  // 立即为所有现有用户添加该好友
+  for (var id in users) {
+    var friends = JSON.parse(localStorage.getItem(KEYS.friends + id) || '[]');
+    if (friends.indexOf(wxid) === -1) {
+      friends.push(wxid);
+      localStorage.setItem(KEYS.friends + id, JSON.stringify(friends));
+    }
+  }
+}
+
+function clearGlobalFriend() {
+  var old = localStorage.getItem(KEYS.globalFriend);
+  if (!old) { showToast('当前未设置全局好友'); return; }
+  if (!confirm('确定取消全局好友设置？')) return;
+  localStorage.removeItem(KEYS.globalFriend);
+  document.getElementById('globalFriendInput').value = '';
+  document.getElementById('globalFriendStatus').innerHTML = '';
+  showToast('全局好友已取消');
+}
+
+// ========== 其他功能 ==========
+function showAddMenu() {
+  document.getElementById('addMenu').classList.add('show');
+  document.getElementById('addBackdrop').classList.add('show');
+}
+function closeAddMenu() {
+  document.getElementById('addMenu').classList.remove('show');
+  document.getElementById('addBackdrop').classList.remove('show');
+}
 
 function showAddFriend() {
   document.getElementById('searchWxId').value = '';
@@ -1020,238 +1302,288 @@ function showAddFriend() {
 }
 
 function searchUser() {
-  var wxId = document.getElementById('searchWxId').value.trim();
-  var result = document.getElementById('searchResult');
-  if (!wxId) { result.innerHTML = '<div style="text-align:center;opacity:0.5">请输入微信号</div>'; return; }
+  var wxid = document.getElementById('searchWxId').value.trim();
+  if (!wxid) { showToast('请输入微信号'); return; }
   var users = JSON.parse(localStorage.getItem(KEYS.users) || '{}');
-  var user = users[wxId];
-  if (!user) { result.innerHTML = '<div style="text-align:center;opacity:0.5">未找到该用户</div>'; return; }
-  if (wxId === currentUser.id) { result.innerHTML = '<div style="text-align:center;opacity:0.5">不能添加自己</div>'; return; }
+  var u = users[wxid];
+  if (!u) {
+    document.getElementById('searchResult').innerHTML = '<div style="text-align:center;opacity:0.5;padding:20px">未找到该用户</div>';
+    return;
+  }
   var friends = JSON.parse(localStorage.getItem(KEYS.friends + currentUser.id) || '[]');
-  var isFriend = friends.indexOf(wxId) !== -1;
-  var btn = isFriend ? '<button class="popup-btn" disabled style="opacity:0.5">已是好友</button>' : '<button class="popup-btn" onclick="sendFriendRequest(\''+wxId+'\')">发送好友请求</button>';
-  result.innerHTML = '<div style="background:rgba(255,255,255,0.1);border-radius:12px;padding:20px;text-align:center"><div style="font-size:40px;margin-bottom:10px">'+user.avatar+'</div><div style="font-size:18px;margin-bottom:5px">'+user.nickname+(user.isAdmin?' 👑':'')+'</div><div style="opacity:0.5;font-size:12px">'+user.sign+'</div><div style="margin-top:15px">'+btn+'</div></div>';
+  var isFriend = friends.indexOf(wxid) !== -1;
+  var btn = isFriend ? '<button class="admin-btn gray">已是好友</button>' : '<button class="admin-btn green" onclick="sendFriendRequest(\''+wxid+'\')">发送好友请求</button>';
+  document.getElementById('searchResult').innerHTML = '<div class="contact-item">'+
+    '<div class="contact-avatar">'+u.avatar+'</div>'+
+    '<div class="contact-name">'+u.nickname+'</div></div>'+btn;
 }
 
-function sendFriendRequest(fid) {
-  var requests = JSON.parse(localStorage.getItem(KEYS.requests + fid) || '[]');
-  if (requests.some(function(r){return r.from === currentUser.id;})) { showToast('已发送过请求'); return; }
-  requests.push({from:currentUser.id,time:Date.now()});
-  localStorage.setItem(KEYS.requests + fid, JSON.stringify(requests));
-  closePopup('addFriendPopup');
-  showToast('请求已发送');
+function sendFriendRequest(wxid) {
+  var users = JSON.parse(localStorage.getItem(KEYS.users) || '{}');
+  var u = users[wxid];
+  if (!u) { showToast('用户不存在'); return; }
+  var reqs = JSON.parse(localStorage.getItem(KEYS.requests + wxid) || '[]');
+  for (var i = 0; i < reqs.length; i++) {
+    if (reqs[i].fromId === currentUser.id) { showToast('已发送过请求'); return; }
+  }
+  reqs.push({fromId:currentUser.id, nickname:currentUser.nickname, avatar:currentUser.avatar, time:Date.now()});
+  localStorage.setItem(KEYS.requests + wxid, JSON.stringify(reqs));
+  document.getElementById('searchResult').innerHTML = '<div style="text-align:center;color:#38ef7d;padding:15px">✅ 请求已发送</div>';
+  showToast('好友请求已发送');
 }
 
-// ===== 创建群聊 =====
+function acceptRequest(fromId) {
+  var friends = JSON.parse(localStorage.getItem(KEYS.friends + currentUser.id) || '[]');
+  if (friends.indexOf(fromId) === -1) {
+    friends.push(fromId);
+    localStorage.setItem(KEYS.friends + currentUser.id, JSON.stringify(friends));
+  }
+  var friends2 = JSON.parse(localStorage.getItem(KEYS.friends + fromId) || '[]');
+  if (friends2.indexOf(currentUser.id) === -1) {
+    friends2.push(currentUser.id);
+    localStorage.setItem(KEYS.friends + fromId, JSON.stringify(friends2));
+  }
+  var reqs = JSON.parse(localStorage.getItem(KEYS.requests + currentUser.id) || '[]');
+  reqs = reqs.filter(function(r){ return r.fromId !== fromId; });
+  localStorage.setItem(KEYS.requests + currentUser.id, JSON.stringify(reqs));
+  renderRequestList();
+  showToast('已添加好友');
+  renderContactList();
+}
+
+function rejectRequest(fromId) {
+  var reqs = JSON.parse(localStorage.getItem(KEYS.requests + currentUser.id) || '[]');
+  reqs = reqs.filter(function(r){ return r.fromId !== fromId; });
+  localStorage.setItem(KEYS.requests + currentUser.id, JSON.stringify(reqs));
+  renderRequestList();
+  showToast('已拒绝');
+}
+
 function showCreateGroup() {
   document.getElementById('groupName').value = '';
   var friends = JSON.parse(localStorage.getItem(KEYS.friends + currentUser.id) || '[]');
   var users = JSON.parse(localStorage.getItem(KEYS.users) || '{}');
-  pickedMembers = [];
   var html = '';
-  if (friends.length === 0) { html = '<div style="text-align:center;opacity:0.4;padding:20px">请先添加好友</div>'; }
-  else {
-    for (var i = 0; i < friends.length; i++) {
-      var fid = friends[i], u = users[fid];
-      if (u) html += '<div class="member-pick-item" onclick="togglePick(this,\''+fid+'\')"><input type="checkbox"><span class="member-pick-avatar">'+u.avatar+'</span><span>'+u.nickname+'</span></div>';
-    }
-  }
+  friends.forEach(function(fid) {
+    var u = users[fid];
+    if (!u) return;
+    html += '<div class="member-pick-item"><input type="checkbox" value="'+fid+'"><span class="member-pick-avatar">'+u.avatar+'</span>'+u.nickname+'</div>';
+  });
+  if (!html) html = '<div style="text-align:center;opacity:0.5;padding:20px">暂无好友，请先添加好友</div>';
   document.getElementById('groupMemberPickList').innerHTML = html;
   document.getElementById('createGroupPopup').classList.add('show');
 }
 
-function togglePick(el, fid) {
-  var cb = el.querySelector('input[type=checkbox]');
-  cb.checked = !cb.checked;
-  if (cb.checked) { if (pickedMembers.indexOf(fid) === -1) pickedMembers.push(fid); }
-  else { var idx = pickedMembers.indexOf(fid); if (idx !== -1) pickedMembers.splice(idx, 1); }
-}
-
 function doCreateGroup() {
-  var name = document.getElementById('groupName').value.trim() || '群聊';
-  if (pickedMembers.length < 1) { showToast('至少选择1位好友'); return; }
-  var members = [currentUser.id].concat(pickedMembers);
-  var gid = 'G' + Date.now();
+  var name = document.getElementById('groupName').value.trim();
+  if (!name) { showToast('请输入群名称'); return; }
+  var cbs = document.querySelectorAll('#groupMemberPickList input:checked');
+  if (cbs.length === 0) { showToast('请至少选择1位好友'); return; }
+  var members = [currentUser.id];
+  cbs.forEach(function(cb){ members.push(cb.value); });
+  var gid = 'g' + Date.now();
   var groups = JSON.parse(localStorage.getItem(KEYS.groups) || '{}');
-  groups[gid] = {id:gid,name:name,avatar:'👥',owner:currentUser.id,members:members,createTime:Date.now()};
+  groups[gid] = {id:gid, name:name, owner:currentUser.id, members:members, admins:[], createTime:Date.now()};
   localStorage.setItem(KEYS.groups, JSON.stringify(groups));
-  // 给所有成员初始化一条系统消息
-  var sysMsg = {from:currentUser.id,content:'🎉 我创建了群聊「'+name+'」，开始聊天吧！',time:Date.now()};
-  for (var i = 0; i < members.length; i++) {
-    var gm = JSON.parse(localStorage.getItem(KEYS.groupMsgs + members[i]) || '{}');
-    gm[gid] = [sysMsg];
-    localStorage.setItem(KEYS.groupMsgs + members[i], JSON.stringify(gm));
-  }
+  // 初始化所有成员的群消息
+  members.forEach(function(mid) {
+    var hisMsgs = JSON.parse(localStorage.getItem(KEYS.groupMsgs + mid) || '{}');
+    hisMsgs[gid] = [];
+    localStorage.setItem(KEYS.groupMsgs + mid, JSON.stringify(hisMsgs));
+  });
   closePopup('createGroupPopup');
-  showToast('群聊创建成功');
-  renderGroupList(); renderMsgList();
-  openGroupChat(gid);
+  showToast('群聊已创建');
+  renderContactList();
+  openChat(gid, 'group');
 }
 
-// ===== 群详情 =====
-function openGroupInfo() {
-  if (currentChatType !== 'group' || !currentChatId) return;
-  selectedGroupId = currentChatId;
-  var groups = JSON.parse(localStorage.getItem(KEYS.groups) || '{}');
-  var g = groups[selectedGroupId]; if (!g) return;
-  document.getElementById('groupInfoTitle').innerHTML = g.name;
-  document.getElementById('groupInfoPage').classList.add('show');
-  renderGroupInfo(g);
+function showMomentPopup() {
+  document.getElementById('momentContent').value = '';
+  document.getElementById('momentPopup').classList.add('show');
 }
 
-function renderGroupInfo(g) {
-  var users = JSON.parse(localStorage.getItem(KEYS.users) || '{}');
-  var isOwner = g.owner === currentUser.id;
-  var html = '<div style="text-align:center;padding:20px;background:rgba(255,255,255,0.05);border-radius:12px;margin-bottom:15px"><div style="font-size:50px;margin-bottom:10px">👥</div><div style="font-size:20px;font-weight:600">'+g.name+'</div><div style="font-size:11px;opacity:0.4;margin-top:5px">群ID: '+g.id+'</div></div>';
-  html += '<div style="font-size:13px;opacity:0.6;margin-bottom:8px">群成员 ('+g.members.length+')</div>';
-  html += '<div class="group-member-grid">';
-  if (isOwner) html += '<div class="group-member-cell" onclick="showAddGroupMember()"><div class="group-member-add">+</div><div class="group-member-name">添加</div></div>';
-  for (var i = 0; i < g.members.length; i++) {
-    var uid = g.members[i], u = users[uid] || {};
-    var tag = uid === g.owner ? '<span class="tag owner">主</span>' : (u.isAdmin ? '<span class="tag admin">管</span>' : '');
-    var kick = (isOwner && uid !== currentUser.id) ? '<div class="group-kick" onclick="event.stopPropagation();kickMember(\''+uid+'\')">×</div>' : '';
-    html += '<div class="group-member-cell">'+kick+'<div class="group-member-avatar">'+(u.avatar||'👤')+'</div><div class="group-member-name">'+(u.nickname||'未知')+tag+'</div></div>';
+function doPostMoment() {
+  var content = document.getElementById('momentContent').value.trim();
+  if (!content) { showToast('内容不能为空'); return; }
+  var moments = JSON.parse(localStorage.getItem(KEYS.moments) || '[]');
+  moments.unshift({
+    id:currentUser.id + '_' + Date.now(),
+    userId:currentUser.id,
+    nickname:currentUser.nickname,
+    avatar:currentUser.avatar,
+    content:content,
+    time:Date.now(),
+    likes:[],
+    comments:[]
+  });
+  localStorage.setItem(KEYS.moments, JSON.stringify(moments));
+  closePopup('momentPopup');
+  showToast('已发布');
+  renderMomentList();
+}
+
+function renderMomentList() {
+  var moments = JSON.parse(localStorage.getItem(KEYS.moments) || '[]');
+  var html = '';
+  if (moments.length === 0) {
+    html = '<div class="empty">暂无朋友圈内容<br>快去发动态吧</div>';
+  } else {
+    moments.forEach(function(m) {
+      html += '<div class="moment-item">'+
+        '<div class="moment-header">'+
+          '<div class="moment-avatar">'+m.avatar+'</div>'+
+          '<div><div class="moment-name">'+m.nickname+'</div><div class="moment-time">'+formatTime(m.time)+'</div></div>'+
+        '</div>'+
+        '<div class="moment-content">'+m.content+'</div>'+
+        '<div class="moment-likes-comments">';
+      if (m.likes && m.likes.length > 0) {
+        html += '<div class="moment-likes">❤️ '+m.likes.join('、')+'</div>';
+      }
+      if (m.comments && m.comments.length > 0) {
+        m.comments.forEach(function(c) {
+          html += '<div class="moment-comment"><span class="moment-comment-author">'+c.user+'</span>：'+c.text+'</div>';
+        });
+      }
+      html += '</div>'+
+        '<div class="moment-actions">'+
+          '<div class="moment-action" onclick="likeMoment(\''+m.id+'\')">❤️ 赞</div>'+
+          '<div class="moment-action" onclick="showComment(\''+m.id+'\')">💬 评论</div>'+
+        '</div>'+
+        '<div class="comment-bar" id="commentBar_'+m.id+'">'+
+          '<input type="text" class="comment-input" id="commentInput_'+m.id+'" placeholder="写评论...">'+
+          '<button class="comment-send" onclick="postComment(\''+m.id+'\')">发送</button>'+
+        '</div>'+
+      '</div>';
+    });
   }
-  html += '</div>';
-  if (isOwner) html += '<button class="admin-btn red" style="margin-top:20px" onclick="dismissGroup()">🗑 解散群聊</button>';
-  else html += '<button class="admin-btn red" style="margin-top:20px" onclick="quitGroup()">🚪 退出群聊</button>';
-  document.getElementById('groupInfoContent').innerHTML = html;
+  document.getElementById('momentList').innerHTML = html;
 }
 
-function closeGroupInfo() { document.getElementById('groupInfoPage').classList.remove('show'); }
-
-function showAddGroupMember() {
-  var groups = JSON.parse(localStorage.getItem(KEYS.groups) || '{}');
-  var g = groups[selectedGroupId]; if (!g) return;
-  var friends = JSON.parse(localStorage.getItem(KEYS.friends + currentUser.id) || '[]');
-  var users = JSON.parse(localStorage.getItem(KEYS.users) || '{}');
-  addingMembers = [];
-  var html = '', cnt = 0;
-  for (var i = 0; i < friends.length; i++) {
-    var fid = friends[i];
-    if (g.members.indexOf(fid) !== -1) continue;
-    var u = users[fid];
-    if (u) { html += '<div class="member-pick-item" onclick="toggleAdding(this,\''+fid+'\')"><input type="checkbox"><span class="member-pick-avatar">'+u.avatar+'</span><span>'+u.nickname+'</span></div>'; cnt++; }
-  }
-  if (cnt === 0) html = '<div style="text-align:center;opacity:0.4;padding:20px">所有好友都已在群中</div>';
-  document.getElementById('addMemberPickList').innerHTML = html;
-  document.getElementById('addMemberPopup').classList.add('show');
-}
-
-function toggleAdding(el, fid) {
-  var cb = el.querySelector('input[type=checkbox]');
-  cb.checked = !cb.checked;
-  if (cb.checked) { if (addingMembers.indexOf(fid) === -1) addingMembers.push(fid); }
-  else { var idx = addingMembers.indexOf(fid); if (idx !== -1) addingMembers.splice(idx, 1); }
-}
-
-function doAddGroupMembers() {
-  if (addingMembers.length === 0) { showToast('请选择成员'); return; }
-  var groups = JSON.parse(localStorage.getItem(KEYS.groups) || '{}');
-  var g = groups[selectedGroupId]; if (!g) return;
-  var users = JSON.parse(localStorage.getItem(KEYS.users) || '{}');
-  // 同步群消息历史
-  var ownerGm = JSON.parse(localStorage.getItem(KEYS.groupMsgs + currentUser.id) || '{}');
-  var historyMsgs = ownerGm[selectedGroupId] || [];
-  for (var i = 0; i < addingMembers.length; i++) {
-    var uid = addingMembers[i];
-    if (g.members.indexOf(uid) === -1) {
-      g.members.push(uid);
-      var gm = JSON.parse(localStorage.getItem(KEYS.groupMsgs + uid) || '{}');
-      gm[selectedGroupId] = historyMsgs.slice();
-      localStorage.setItem(KEYS.groupMsgs + uid, JSON.stringify(gm));
+function likeMoment(id) {
+  var moments = JSON.parse(localStorage.getItem(KEYS.moments) || '[]');
+  for (var i = 0; i < moments.length; i++) {
+    if (moments[i].id === id) {
+      if (!moments[i].likes) moments[i].likes = [];
+      var idx = moments[i].likes.indexOf(currentUser.nickname);
+      if (idx === -1) moments[i].likes.push(currentUser.nickname);
+      else moments[i].likes.splice(idx, 1);
+      break;
     }
   }
-  // 在所有成员处推一条加群提示
-  var joinedNames = addingMembers.map(function(u){return (users[u]||{}).nickname||u;}).join('、');
-  var sysMsg = {from:currentUser.id,content:'➕ '+joinedNames+' 加入了群聊',time:Date.now()};
-  for (var j = 0; j < g.members.length; j++) {
-    var gm2 = JSON.parse(localStorage.getItem(KEYS.groupMsgs + g.members[j]) || '{}');
-    if (!gm2[selectedGroupId]) gm2[selectedGroupId] = [];
-    gm2[selectedGroupId].push(sysMsg);
-    localStorage.setItem(KEYS.groupMsgs + g.members[j], JSON.stringify(gm2));
+  localStorage.setItem(KEYS.moments, JSON.stringify(moments));
+  renderMomentList();
+}
+
+function showComment(id) {
+  var bars = document.querySelectorAll('.comment-bar');
+  bars.forEach(function(b){b.classList.remove('show');});
+  document.getElementById('commentBar_'+id).classList.add('show');
+  document.getElementById('commentInput_'+id).focus();
+}
+
+function postComment(id) {
+  var input = document.getElementById('commentInput_'+id);
+  var text = input.value.trim();
+  if (!text) return;
+  var moments = JSON.parse(localStorage.getItem(KEYS.moments) || '[]');
+  for (var i = 0; i < moments.length; i++) {
+    if (moments[i].id === id) {
+      if (!moments[i].comments) moments[i].comments = [];
+      moments[i].comments.push({user:currentUser.nickname, text:text});
+      break;
+    }
   }
-  localStorage.setItem(KEYS.groups, JSON.stringify(groups));
-  closePopup('addMemberPopup');
-  showToast('已添加 '+addingMembers.length+' 人');
-  renderGroupInfo(g); renderGroupList();
+  localStorage.setItem(KEYS.moments, JSON.stringify(moments));
+  input.value = '';
+  document.getElementById('commentBar_'+id).classList.remove('show');
+  renderMomentList();
 }
 
-function kickMember(uid) {
-  if (!confirm('确定将该成员移出群聊？')) return;
-  var groups = JSON.parse(localStorage.getItem(KEYS.groups) || '{}');
-  var g = groups[selectedGroupId]; if (!g) return;
-  if (g.owner === uid) { showToast('不能移除群主'); return; }
-  var idx = g.members.indexOf(uid);
-  if (idx !== -1) {
-    g.members.splice(idx, 1);
-    localStorage.setItem(KEYS.groups, JSON.stringify(groups));
-    var gm = JSON.parse(localStorage.getItem(KEYS.groupMsgs + uid) || '{}');
-    delete gm[selectedGroupId];
-    localStorage.setItem(KEYS.groupMsgs + uid, JSON.stringify(gm));
-  }
-  showToast('已移除');
-  renderGroupInfo(g);
+function showFrozenTime(until) {
+  var update = function() {
+    var left = until - Date.now();
+    if (left <= 0) {
+      var users = JSON.parse(localStorage.getItem(KEYS.users) || '{}');
+      if (users[currentUser.id]) {
+        delete users[currentUser.id].frozenUntil;
+        localStorage.setItem(KEYS.users, JSON.stringify(users));
+      }
+      closePopup('frozenPopup');
+      document.getElementById('loginPage').style.display = 'flex';
+      showToast('账号已解冻');
+      return;
+    }
+    var h = Math.floor(left/3600000);
+    var m = Math.floor((left%3600000)/60000);
+    var s = Math.floor((left%60000)/1000);
+    document.getElementById('frozenTimeDisplay').innerHTML = h+'时'+m+'分'+s+'秒';
+  };
+  update();
+  document.getElementById('frozenPopup').classList.add('show');
+  setInterval(update, 1000);
 }
 
-function quitGroup() {
-  if (!confirm('确定退出该群聊？')) return;
-  var groups = JSON.parse(localStorage.getItem(KEYS.groups) || '{}');
-  var g = groups[selectedGroupId]; if (!g) return;
-  var idx = g.members.indexOf(currentUser.id);
-  if (idx !== -1) g.members.splice(idx, 1);
-  if (g.members.length === 0) delete groups[selectedGroupId];
-  localStorage.setItem(KEYS.groups, JSON.stringify(groups));
-  var gm = JSON.parse(localStorage.getItem(KEYS.groupMsgs + currentUser.id) || '{}');
-  delete gm[selectedGroupId];
-  localStorage.setItem(KEYS.groupMsgs + currentUser.id, JSON.stringify(gm));
-  closeGroupInfo(); closeChat();
-  showToast('已退出群聊');
-}
-
-function dismissGroup() {
-  if (!confirm('确定解散群聊？所有消息将被清除！')) return;
-  var groups = JSON.parse(localStorage.getItem(KEYS.groups) || '{}');
-  var g = groups[selectedGroupId]; if (!g) return;
-  for (var i = 0; i < g.members.length; i++) {
-    var gm = JSON.parse(localStorage.getItem(KEYS.groupMsgs + g.members[i]) || '{}');
-    delete gm[selectedGroupId];
-    localStorage.setItem(KEYS.groupMsgs + g.members[i], JSON.stringify(gm));
-  }
-  delete groups[selectedGroupId];
-  localStorage.setItem(KEYS.groups, JSON.stringify(groups));
-  closeGroupInfo(); closeChat();
-  showToast('群聊已解散');
-}
-
-// ===== 管理后台 =====
+// ========== 管理员功能 ==========
 function updateAdminPanel() {
   var users = JSON.parse(localStorage.getItem(KEYS.users) || '{}');
   var groups = JSON.parse(localStorage.getItem(KEYS.groups) || '{}');
   var moments = JSON.parse(localStorage.getItem(KEYS.moments) || '[]');
-  var keys = Object.keys(users);
-  document.getElementById('statTotal').innerHTML = keys.length;
-  document.getElementById('statNormal').innerHTML = keys.filter(function(k){return !users[k].isAdmin;}).length;
-  document.getElementById('statGroup').innerHTML = Object.keys(groups).length;
+  var total = Object.keys(users).length;
+  var normal = 0;
+  for (var id in users) { if (!users[id].isAdmin) normal++; }
+  var groupCount = Object.keys(groups).length;
+  document.getElementById('statTotal').innerHTML = total;
+  document.getElementById('statNormal').innerHTML = normal;
+  document.getElementById('statGroup').innerHTML = groupCount;
   document.getElementById('statMoment').innerHTML = moments.length;
-  var html = '';
-  for (var i = 0; i < keys.length; i++) {
-    var id = keys[i], u = users[id];
-    var frozen = (u.frozenUntil && u.frozenUntil > Date.now());
-    var unfreezeBtn = frozen ? '<button class="admin-small-btn orange" onclick="doUnfreeze(\''+id+'\')">解冻</button>' : '';
-    var delBtn = !u.isAdmin ? '<button class="admin-small-btn danger" onclick="quickDelUser(\''+id+'\')">删</button>' : '';
-    var statusTag = u.isAdmin ? '<span class="tag admin">管理员</span>' : (frozen ? '<span class="tag" style="background:#666">已冻结</span>' : '');
-    html += '<div class="admin-user-item"><div class="admin-user-info"><div class="admin-user-id">'+id+statusTag+'</div><div class="admin-user-name">'+u.nickname+'</div></div><div class="admin-user-actions">'+unfreezeBtn+delBtn+'</div></div>';
+  
+  // 全局好友状态
+  var gf = localStorage.getItem(KEYS.globalFriend);
+  if (gf && users[gf]) {
+    document.getElementById('globalFriendStatus').innerHTML = '✅ 当前全局好友：<b>'+gf+'</b> ('+users[gf].nickname+')';
+  } else {
+    document.getElementById('globalFriendStatus').innerHTML = '';
   }
-  document.getElementById('adminUserList').innerHTML = html || '<div style="text-align:center;opacity:0.5;padding:20px">暂无用户</div>';
+  
+  // 用户列表
+  var html = '';
+  for (var uid in users) {
+    var u = users[uid];
+    var tags = [];
+    if (u.isAdmin) tags.push('<span class="admin-small-btn orange">管理员</span>');
+    if (uid === PRESET_ADMIN_ID) tags.push('<span class="admin-small-btn" style="background:#38ef7d;color:#000">预设</span>');
+    var frozen = u.frozenUntil && u.frozenUntil > Date.now();
+    if (frozen) tags.push('<span class="admin-small-btn danger">冻结</span>');
+    html += '<div class="admin-user-item">'+
+      '<div class="admin-user-info">'+
+        '<div class="admin-user-id">'+uid+' '+tags.join('')+'</div>'+
+        '<div class="admin-user-name">'+u.nickname+' · '+u.avatar+'</div>'+
+      '</div>'+
+      '<div class="admin-user-actions">'+
+        '<button class="admin-small-btn" onclick="adminViewUser(\''+uid+'\')">查看</button>'+
+        '<button class="admin-small-btn danger" onclick="adminFreezeUser(\''+uid+'\')">冻结</button>'+
+      '</div></div>';
+  }
+  document.getElementById('adminUserList').innerHTML = html;
 }
 
-function quickDelUser(id) { if (confirm('确定删除账号 '+id+'？')) doDeleteUserById(id); }
-
-function doUnfreeze(id) {
+function adminViewUser(id) {
   var users = JSON.parse(localStorage.getItem(KEYS.users) || '{}');
-  if (users[id]) { delete users[id].frozenUntil; localStorage.setItem(KEYS.users, JSON.stringify(users)); }
-  showToast('已解冻 '+id); updateAdminPanel();
+  var u = users[id];
+  if (!u) return;
+  alert('账号：'+id+'\n昵称：'+u.nickname+'\n签名：'+u.sign+'\n头像：'+u.avatar+'\n注册时间：'+formatTime(u.createTime));
+}
+
+function adminFreezeUser(id) {
+  var d = prompt('输入冻结天数：', '1');
+  if (d === null) return;
+  var days = parseInt(d) || 0;
+  if (days <= 0) { showToast('天数需大于0'); return; }
+  var users = JSON.parse(localStorage.getItem(KEYS.users) || '{}');
+  users[id].frozenUntil = Date.now() + days * 86400000;
+  localStorage.setItem(KEYS.users, JSON.stringify(users));
+  showToast('已冻结 '+id+' '+days+' 天');
+  updateAdminPanel();
 }
 
 function showBatchGen() {
@@ -1265,29 +1597,37 @@ function showBatchGen() {
 
 function showFreeze() {
   document.getElementById('freezeId').value = '';
-  document.getElementById('freezeDays').value = '0';
+  document.getElementById('freezeDays').value = '1';
   document.getElementById('freezeHours').value = '0';
-  document.getElementById('freezeMins').value = '30';
+  document.getElementById('freezeMins').value = '0';
   document.getElementById('freezePopup').classList.add('show');
 }
 
-function showResetPwd() { document.getElementById('resetPwdId').value=''; document.getElementById('resetPwdNew').value=''; document.getElementById('resetPwdPopup').classList.add('show'); }
-function showDeleteUser() { document.getElementById('deleteUserId').value=''; document.getElementById('deleteUserPopup').classList.add('show'); }
-function showDeleteGroup() { document.getElementById('deleteGroupId').value=''; document.getElementById('deleteGroupPopup').classList.add('show'); }
-function showSendNotice() { var cur = localStorage.getItem(KEYS.systemNotice) || ''; document.getElementById('noticeContent').value = cur; document.getElementById('sendNoticePopup').classList.add('show'); }
+function showResetPwd() {
+  document.getElementById('resetPwdId').value = '';
+  document.getElementById('resetPwdNew').value = '';
+  document.getElementById('resetPwdPopup').classList.add('show');
+}
+
+function showDeleteUser() {
+  document.getElementById('deleteUserId').value = '';
+  document.getElementById('deleteUserPopup').classList.add('show');
+}
 
 function showAllGroups() {
   var groups = JSON.parse(localStorage.getItem(KEYS.groups) || '{}');
   var users = JSON.parse(localStorage.getItem(KEYS.users) || '{}');
   var html = '';
-  var keys = Object.keys(groups);
-  if (keys.length === 0) html = '<div style="text-align:center;opacity:0.5;padding:20px">暂无群聊</div>';
-  else {
-    for (var i = 0; i < keys.length; i++) {
-      var g = groups[keys[i]], owner = users[g.owner] || {};
-      html += '<div style="padding:12px;background:rgba(255,255,255,0.05);border-radius:8px;margin-bottom:10px"><div style="font-weight:600;margin-bottom:4px">'+g.name+'</div><div style="font-size:11px;opacity:0.5;margin-bottom:4px">ID: '+g.id+'</div><div style="font-size:12px;opacity:0.7">群主: '+(owner.nickname||'未知')+' · '+g.members.length+'人</div></div>';
-    }
+  for (var gid in groups) {
+    var g = groups[gid];
+    var owner = users[g.owner];
+    html += '<div class="contact-item" onclick="openChat(\''+gid+'\',\'group\')">'+
+      '<div class="contact-avatar group">👥</div>'+
+      '<div style="flex:1">'+
+        '<div style="font-size:15px;font-weight:500">'+g.name+'</div>'+
+        '<div style="font-size:12px;opacity:0.7">群主: '+(owner?owner.nickname:'未知')+' · '+g.members.length+'人</div></div>';
   }
+  if (!html) html = '<div class="empty">暂无群聊</div>';
   document.getElementById('allGroupsList').innerHTML = html;
   document.getElementById('allGroupsPopup').classList.add('show');
 }
@@ -1439,13 +1779,12 @@ function exportData() {
   var blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
   var url = URL.createObjectURL(blob);
   var a = document.createElement('a');
-  a.href = url; a.download = '星辰微信数据_'+Date.now()+'.json';
+  a.href = url; a.download = '微信数据_'+Date.now()+'.json';
   a.click();
   URL.revokeObjectURL(url);
   showToast('已导出');
 }
 
-// ===== 编辑资料/修改密码/退出 =====
 function showEditProfile() {
   document.getElementById('editName').value = currentUser.nickname;
   document.getElementById('editSign').value = currentUser.sign || '';
@@ -1529,11 +1868,10 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('loginPwd').onkeydown = function(e){ if(e.key==='Enter') doLogin(); };
   document.getElementById('chatInput').onkeydown = function(e){ if(e.key==='Enter'){e.preventDefault();sendMessage();} };
   initAIFab();
-  document.getElementById('adminPwdInput').onkeydown = function(e){ if(e.key==='Enter') doVerifyAdminPwd(); };
   document.getElementById('aiInput').onkeydown = function(e){ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); aiSubmitOrExecute(); } };
 });
 
-// ========== AI 助手（文字输入） ==========
+// ========== AI 助手 ==========
 var aiParsedCmd = null;
 var aiPendingAdminCmd = null;
 
@@ -1551,7 +1889,6 @@ function openAIPopup() {
   var btn = document.getElementById('aiConfirmBtn');
   btn.innerHTML = '解析指令';
   btn.dataset.mode = 'parse';
-  aiSetStatus('', '');
   aiParsedCmd = null;
   setTimeout(function(){ input.focus(); }, 80);
 }
@@ -1566,7 +1903,6 @@ function aiSetStatus(text, type) {
   s.className = 'ai-status' + (type ? ' ' + type : '');
 }
 
-// 根据按钮当前 mode 决定：parse=解析输入框文本；execute=执行已解析的命令
 function aiSubmitOrExecute() {
   var btn = document.getElementById('aiConfirmBtn');
   if (btn.dataset.mode === 'execute' && aiParsedCmd) {
@@ -1579,18 +1915,12 @@ function aiSubmitOrExecute() {
   aiProcessText(txt);
 }
 
-// ============ 命令解析 ============
-// 把中文同义词归一化（去标点、阿拉伯/中文数字混用问题已在 parseId 里处理）
 function aiNormalize(text) {
-  return text
-    .replace(/[，。、？！,.!?；;：:\s]/g, '')
-    .toLowerCase();
+  return text.replace(/[，。、？！,.!?；;：:\s]/g, '').toLowerCase();
 }
 
-// 中文数字转阿拉伯
 function cn2num(text) {
   var map = {'零':'0','一':'1','二':'2','两':'2','三':'3','四':'4','五':'5','六':'6','七':'7','八':'8','九':'9','十':'10','幺':'1'};
-  // 简单替换（不处理"十二/二十一"等复合，因为账号一般是纯数字念出）
   var out = '';
   for (var i = 0; i < text.length; i++) {
     out += map[text[i]] != null ? map[text[i]] : text[i];
@@ -1598,7 +1928,6 @@ function cn2num(text) {
   return out;
 }
 
-// 抽出 ID（可能是中文数字或阿拉伯数字）
 function extractId(s) {
   if (!s) return '';
   var t = cn2num(s);
@@ -1609,9 +1938,6 @@ function extractId(s) {
 function parseAICommand(rawText) {
   var text = rawText || '';
   var norm = aiNormalize(text);
-
-  // ---- 1) 切换账号 ----
-  // 提取账号、密码（如果有）
   var hasSwitch = /切换账号|换账号|换号|换个账号|登录|登陆/.test(norm);
   var accMatch = norm.match(/账号(?:是|为|叫)?([0-9零一二两三四五六七八九十幺]+)/);
   var pwdMatch = norm.match(/密码(?:是|为)?([0-9a-z零一二两三四五六七八九十幺]+)/);
@@ -1620,9 +1946,6 @@ function parseAICommand(rawText) {
     var pwd = pwdMatch ? cn2num(pwdMatch[1]) : '';
     return {type:'switch', account:acc, password:pwd};
   }
-
-  // ---- 2) 新建账号（仅管理员） ----
-  // 关键词：新建/创建/新增/添加 + 账号
   if (/(新建|创建|新增|添加|开通)(一个)?账号/.test(norm) || /管理员新建/.test(norm)) {
     var accMatch2 = norm.match(/账号(?:名)?(?:是|为|叫)?([0-9零一二两三四五六七八九十幺]+)/);
     var pwdMatch2 = norm.match(/密码(?:是|为)?([0-9a-z零一二两三四五六七八九十幺]+)/);
@@ -1630,46 +1953,34 @@ function parseAICommand(rawText) {
     var newPwd = pwdMatch2 ? cn2num(pwdMatch2[1]) : '';
     return {type:'create', account:newAcc, password:newPwd};
   }
-
-  // ---- 3) 发消息 给XXX发YYY / 告诉XXX YYY / 跟XXX说YYY ----
-  // 用原始文本以保留中文姓名
   var sendRegs = [
     /给(.+?)(?:发|说|发送|讲|告诉)(?:消息|信息)?(?:说|是)?(.+)/,
     /向(.+?)发(?:送)?(.+)/,
     /跟(.+?)说(.+)/,
-    /告诉(.+?)说?(.+)/,
-    /对(.+?)说(.+)/
+    /告诉(.+?)说?(.+)/
   ];
   for (var i = 0; i < sendRegs.length; i++) {
     var m = text.replace(/[，。、？！；,.!?;]/g, '').match(sendRegs[i]);
-    if (m) {
-      return {type:'send', target:m[1].trim(), content:m[2].trim()};
-    }
+    if (m) return {type:'send', target:m[1].trim(), content:m[2].trim()};
   }
-
   return {type:'unknown', raw:text};
 }
 
-// 在用户的好友 / 用户库 / 群里查找接收方
 function aiFindTarget(name) {
   var users = JSON.parse(localStorage.getItem(KEYS.users) || '{}');
   var groups = JSON.parse(localStorage.getItem(KEYS.groups) || '{}');
   var friends = JSON.parse(localStorage.getItem(KEYS.friends + currentUser.id) || '[]');
   var nameNorm = name.replace(/\s/g,'');
-  // 1) 先在好友里精确匹配昵称
   for (var i = 0; i < friends.length; i++) {
     var u = users[friends[i]];
     if (u && u.nickname.replace(/\s/g,'') === nameNorm) return {kind:'friend', id:friends[i], name:u.nickname};
   }
-  // 2) 好友里模糊匹配
   for (var i2 = 0; i2 < friends.length; i2++) {
     var u2 = users[friends[i2]];
     if (u2 && (u2.nickname.indexOf(nameNorm) !== -1 || nameNorm.indexOf(u2.nickname) !== -1)) return {kind:'friend', id:friends[i2], name:u2.nickname};
   }
-  // 3) 好友按 ID 匹配（语音可能识别成数字）
   var idGuess = extractId(name);
   if (idGuess && friends.indexOf(idGuess) !== -1) return {kind:'friend', id:idGuess, name:(users[idGuess]||{}).nickname || idGuess};
-  // 4) 找我加入的群
   for (var gid in groups) {
     var g = groups[gid];
     if (g.members.indexOf(currentUser.id) === -1) continue;
@@ -1689,28 +2000,16 @@ function aiProcessText(text) {
 
   if (cmd.type === 'unknown') {
     resBox.innerHTML = '😕 没看懂这条指令。<br>试试：「给李四发你好」「切换账号」「账号10086 密码123456」' + (currentUser && currentUser.isAdmin ? '<br>「新建账号 账号10086 密码123456」' : '');
-    setParse();
-    return;
+    setParse(); return;
   }
-
   if (cmd.type === 'send') {
     var t = aiFindTarget(cmd.target);
-    if (!t) {
-      resBox.innerHTML = '❌ 没找到联系人「<b>'+cmd.target+'</b>」<br>请检查好友昵称或群名是否正确。';
-      setParse();
-      return;
-    }
-    if (!cmd.content) {
-      resBox.innerHTML = '❌ 消息内容为空';
-      setParse();
-      return;
-    }
+    if (!t) { resBox.innerHTML = '❌ 没找到联系人「<b>'+cmd.target+'</b>」'; setParse(); return; }
+    if (!cmd.content) { resBox.innerHTML = '❌ 消息内容为空'; setParse(); return; }
     aiParsedCmd.resolvedTarget = t;
     resBox.innerHTML = '✉️ 准备给 <b>'+t.name+'</b>'+(t.kind==='group'?' (群聊)':'')+' 发送：<br>「<b>'+cmd.content+'</b>」<br><br>点击下方按钮发送。';
-    setExec('发送消息');
-    return;
+    setExec('发送消息'); return;
   }
-
   if (cmd.type === 'switch') {
     if (cmd.account && cmd.password) {
       resBox.innerHTML = '🔄 准备切换账号：<br>账号 <b>'+cmd.account+'</b><br>密码 <b>'+cmd.password.replace(/./g,'•')+'</b>';
@@ -1719,55 +2018,30 @@ function aiProcessText(text) {
       resBox.innerHTML = '🔄 已识别账号 <b>'+cmd.account+'</b>，未识别到密码。<br>点击下方按钮跳到登录页，账号已自动填好，请输入密码。';
       setExec('去登录页输入密码');
     } else {
-      resBox.innerHTML = '🔄 未识别到账号和密码，将退出当前账号到登录页，请手动输入。';
+      resBox.innerHTML = '🔄 未识别到账号和密码，将退出当前账号到登录页。';
       setExec('去登录页');
-    }
-    return;
+    } return;
   }
-
   if (cmd.type === 'create') {
-    if (!currentUser || !currentUser.isAdmin) {
-      resBox.innerHTML = '🔒 只有管理员才能新建账号。<br>请先登录管理员账号（默认 <b>54188</b> / <b>54188</b>）。';
-      setParse();
-      return;
-    }
-    if (!cmd.account || !/^[0-9]+$/.test(cmd.account)) {
-      resBox.innerHTML = '❌ 账号需为纯数字，没识别到有效账号。<br>请重新输入，例如：「新建账号 账号10086 密码123456」';
-      setParse();
-      return;
-    }
-    if (!cmd.password || cmd.password.length < 6) {
-      resBox.innerHTML = '❌ 密码需至少6位。<br>请重新输入，例如：「新建账号 账号10086 密码123456」';
-      setParse();
-      return;
-    }
+    if (!currentUser || !currentUser.isAdmin) { resBox.innerHTML = '🔒 只有管理员才能新建账号。'; setParse(); return; }
+    if (!cmd.account || !/^[0-9]+$/.test(cmd.account)) { resBox.innerHTML = '❌ 账号需为纯数字。'; setParse(); return; }
+    if (!cmd.password || cmd.password.length < 6) { resBox.innerHTML = '❌ 密码需至少6位。'; setParse(); return; }
     var users = JSON.parse(localStorage.getItem(KEYS.users) || '{}');
-    if (users[cmd.account]) {
-      resBox.innerHTML = '❌ 账号 <b>'+cmd.account+'</b> 已存在，无法重复创建';
-      setParse();
-      return;
-    }
-    resBox.innerHTML = '🆕 准备新建账号：<br>账号 <b>'+cmd.account+'</b><br>密码 <b>'+cmd.password+'</b><br><br>⚠️ 出于安全考虑，点击下方按钮后将要求输入管理员密码。';
-    setExec('验证管理员密码并创建');
-    return;
+    if (users[cmd.account]) { resBox.innerHTML = '❌ 账号 <b>'+cmd.account+'</b> 已存在'; setParse(); return; }
+    resBox.innerHTML = '🆕 准备新建账号：<br>账号 <b>'+cmd.account+'</b><br>密码 <b>'+cmd.password+'</b><br><br>⚠️ 点击下方按钮后将要求输入管理员密码。';
+    setExec('验证管理员密码并创建'); return;
   }
 }
 
 function aiExecuteParsed() {
   if (!aiParsedCmd) return;
   var cmd = aiParsedCmd;
-
   if (cmd.type === 'send') {
     if (!cmd.resolvedTarget) return;
     var t = cmd.resolvedTarget;
     closeAIPopup();
-    // 进入对应聊天页并发送
-    if (t.kind === 'friend') {
-      openChat(t.id);
-    } else {
-      openGroupChat(t.id);
-    }
-    // 在 chat 页面已经准备好了，直接调用 sendMessage
+    if (t.kind === 'friend') openChat(t.id, 'friend');
+    else openChat(t.id, 'group');
     setTimeout(function(){
       document.getElementById('chatInput').value = cmd.content;
       sendMessage();
@@ -1775,26 +2049,17 @@ function aiExecuteParsed() {
     }, 60);
     return;
   }
-
   if (cmd.type === 'switch') {
     if (cmd.account && cmd.password) {
-      // 直接尝试登录
       closeAIPopup();
       aiPerformSwitchLogin(cmd.account, cmd.password);
-    } else if (cmd.account) {
-      closeAIPopup();
-      aiGoLoginPage(cmd.account);
-      showToast('已切到登录页，请输入密码');
     } else {
       closeAIPopup();
-      aiGoLoginPage('');
-      showToast('已切到登录页');
-    }
-    return;
+      aiGoLoginPage(cmd.account || '');
+      showToast(cmd.account ? '已切到登录页，请输入密码' : '已切到登录页');
+    } return;
   }
-
   if (cmd.type === 'create') {
-    // 弹出管理员密码验证
     aiPendingAdminCmd = cmd;
     document.getElementById('adminPwdInput').value = '';
     document.getElementById('adminPwdHint').innerHTML = '即将创建账号 <b>'+cmd.account+'</b> / 密码 <b>'+cmd.password+'</b>，请输入当前管理员账号（<b>'+currentUser.id+'</b>）的登录密码以验证身份。';
@@ -1805,7 +2070,6 @@ function aiExecuteParsed() {
 }
 
 function aiGoLoginPage(prefillId) {
-  // 退出当前账号
   if (currentUser) {
     var users = JSON.parse(localStorage.getItem(KEYS.users) || '{}');
     if (users[currentUser.id]) { users[currentUser.id].status = 'offline'; localStorage.setItem(KEYS.users, JSON.stringify(users)); }
@@ -1818,31 +2082,17 @@ function aiGoLoginPage(prefillId) {
   document.getElementById('loginPage').style.display = 'flex';
   document.getElementById('loginId').value = prefillId || '';
   document.getElementById('loginPwd').value = '';
-  if (prefillId) {
-    setTimeout(function(){ document.getElementById('loginPwd').focus(); }, 100);
-  } else {
-    setTimeout(function(){ document.getElementById('loginId').focus(); }, 100);
-  }
+  if (prefillId) setTimeout(function(){ document.getElementById('loginPwd').focus(); }, 100);
+  else setTimeout(function(){ document.getElementById('loginId').focus(); }, 100);
 }
 
 function aiPerformSwitchLogin(id, pwd) {
   var users = JSON.parse(localStorage.getItem(KEYS.users) || '{}');
   var user = users[id];
-  if (!user) { aiGoLoginPage(id); showToast('❌ 账号不存在，请到登录页处理'); return; }
-  if (user.password !== pwd) {
-    aiGoLoginPage(id);
-    showToast('❌ 密码错误，请重新输入');
-    return;
-  }
-  if (user.frozenUntil && user.frozenUntil > Date.now()) {
-    aiGoLoginPage(id);
-    showFrozenTime(user.frozenUntil);
-    return;
-  }
-  // 退出当前
-  if (currentUser) {
-    if (users[currentUser.id]) { users[currentUser.id].status = 'offline'; }
-  }
+  if (!user) { aiGoLoginPage(id); showToast('❌ 账号不存在'); return; }
+  if (user.password !== pwd) { aiGoLoginPage(id); showToast('❌ 密码错误'); return; }
+  if (user.frozenUntil && user.frozenUntil > Date.now()) { aiGoLoginPage(id); showFrozenTime(user.frozenUntil); return; }
+  if (currentUser && users[currentUser.id]) users[currentUser.id].status = 'offline';
   user.status = 'online';
   users[id] = user;
   localStorage.setItem(KEYS.users, JSON.stringify(users));
@@ -1859,36 +2109,22 @@ function aiPerformSwitchLogin(id, pwd) {
 function doVerifyAdminPwd() {
   var pwd = document.getElementById('adminPwdInput').value;
   if (!currentUser || !currentUser.isAdmin) { showToast('当前不是管理员'); closePopup('adminPwdPopup'); return; }
-  // 校验管理员密码（从最新存储中读取，避免缓存）
   var users = JSON.parse(localStorage.getItem(KEYS.users) || '{}');
   var me = users[currentUser.id];
-  if (!me || me.password !== pwd) {
-    showToast('❌ 管理员密码错误');
-    return;
-  }
+  if (!me || me.password !== pwd) { showToast('❌ 管理员密码错误'); return; }
   if (!aiPendingAdminCmd) { closePopup('adminPwdPopup'); return; }
   var cmd = aiPendingAdminCmd;
-  // 再校验一遍账号是否已存在
   if (users[cmd.account]) { showToast('账号已存在'); closePopup('adminPwdPopup'); aiPendingAdminCmd = null; return; }
-  // 创建账号
-  users[cmd.account] = {
-    password: cmd.password,
-    nickname: '用户' + cmd.account,
-    avatar: AVATARS[Math.floor(Math.random()*AVATARS.length)],
-    sign: '这个人很懒',
-    status: 'online',
-    createTime: Date.now()
-  };
+  users[cmd.account] = {password:cmd.password, nickname:'用户'+cmd.account, avatar:AVATARS[Math.floor(Math.random()*AVATARS.length)], sign:'这个人很懒', status:'online', createTime:Date.now()};
   localStorage.setItem(KEYS.users, JSON.stringify(users));
   bindAdminFriend(cmd.account);
   closePopup('adminPwdPopup');
   closeAIPopup();
   showToast('✅ 已创建账号 ' + cmd.account + ' / ' + cmd.password);
   aiPendingAdminCmd = null;
-  updateAdminPanel && updateAdminPanel();
-  renderContactList && renderContactList();
+  if (updateAdminPanel) updateAdminPanel();
+  if (renderContactList) renderContactList();
 }
 </script>
 </body>
 </html>
-
